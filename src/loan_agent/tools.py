@@ -20,7 +20,7 @@ from typing import Any
 DATA_PATH = Path(__file__).resolve().parents[2] / "data" / "customers.json"
 
 # Foreclosure charge, as written in sops/foreclosure.md:
-# fixed-rate loans pay 2% of outstanding principal; floating-rate loans pay 0%.
+# fixed-rate: 2% of the amount prepaid (lender policy); floating-rate: 0% (RBI rule).
 FORECLOSURE_CHARGE_RATE = {"fixed": 0.02, "floating": 0.0}
 
 REFUND_TIMELINE = "5-7 working days"  # from sops/duplicate_emi_debit.md

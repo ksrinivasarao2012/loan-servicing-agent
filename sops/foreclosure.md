@@ -5,8 +5,11 @@
 
 ## Policy
 - Foreclosure amount = outstanding principal + foreclosure charge.
-- Foreclosure charge: **2% of outstanding principal for fixed-rate loans; 0% for floating-rate loans.**
+- **Floating-rate loans: no foreclosure charge (0%).** Home loans to individuals on a floating rate cannot carry a foreclosure charge.
+- **Fixed-rate loans: 2% of the amount being prepaid** (for full foreclosure, that is the outstanding principal), as stated in the customer's sanction letter and loan agreement.
 - The quoted amount is valid for today only. Interest for the days until payment may be added.
+
+_Demo note: the 0% floating-rate rule mirrors RBI's (Pre-payment Charges on Loans) Directions, 2025. The 2% fixed-rate charge is this fake lender's own policy; RBI leaves fixed-rate charges to each lender's disclosed policy._
 
 ## Steps
 1. Verify identity with loan ID and date of birth (`verify_customer`).
