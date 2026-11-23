@@ -1,0 +1,102 @@
+{
+  "_note": "FAKE demo data for HomeFirst Loans. Not real people. Amounts in INR.",
+  "customers": [
+    {
+      "profile": "A - duplicate EMI debit",
+      "name": "Ravi Kumar",
+      "loan_id": "HF1001",
+      "date_of_birth": "1988-04-12",
+      "loan_amount": 3000000,
+      "outstanding_principal": 2450000,
+      "emi_amount": 28500,
+      "interest_rate": 8.5,
+      "rate_type": "floating",
+      "status": "active",
+      "payment_history": [
+        {"txn_id": "TXN-1001-0805", "date": "2026-08-05", "amount": 28500, "type": "EMI"},
+        {"txn_id": "TXN-1001-0905", "date": "2026-09-05", "amount": 28500, "type": "EMI"},
+        {"txn_id": "TXN-1001-1005", "date": "2026-10-05", "amount": 28500, "type": "EMI"},
+        {"txn_id": "TXN-1001-1105A", "date": "2026-11-05", "amount": 28500, "type": "EMI"},
+        {"txn_id": "TXN-1001-1105B", "date": "2026-11-05", "amount": 28500, "type": "EMI"}
+      ],
+      "documents": {"status": "held", "reason": "Loan is active."}
+    },
+    {
+      "profile": "B - loan closed, wants property documents",
+      "name": "Priya Sharma",
+      "loan_id": "HF1002",
+      "date_of_birth": "1979-09-30",
+      "loan_amount": 2500000,
+      "outstanding_principal": 0,
+      "emi_amount": 24000,
+      "interest_rate": 8.75,
+      "rate_type": "floating",
+      "status": "closed",
+      "closure_date": "2026-11-02",
+      "payment_history": [
+        {"txn_id": "TXN-1002-0905", "date": "2026-09-05", "amount": 24000, "type": "EMI"},
+        {"txn_id": "TXN-1002-1005", "date": "2026-10-05", "amount": 24000, "type": "EMI"},
+        {"txn_id": "TXN-1002-1102", "date": "2026-11-02", "amount": 186000, "type": "FINAL_PAYMENT"}
+      ],
+      "documents": {
+        "status": "ready_for_collection",
+        "branch": "HomeFirst Loans, Madhapur branch, Hyderabad",
+        "ready_from": "2026-11-20"
+      }
+    },
+    {
+      "profile": "C - active loan, wants foreclosure amount",
+      "name": "Arjun Reddy",
+      "loan_id": "HF1003",
+      "date_of_birth": "1985-01-22",
+      "loan_amount": 2000000,
+      "outstanding_principal": 1200000,
+      "emi_amount": 21000,
+      "interest_rate": 9.25,
+      "rate_type": "fixed",
+      "status": "active",
+      "payment_history": [
+        {"txn_id": "TXN-1003-0910", "date": "2026-09-10", "amount": 21000, "type": "EMI"},
+        {"txn_id": "TXN-1003-1010", "date": "2026-10-10", "amount": 21000, "type": "EMI"},
+        {"txn_id": "TXN-1003-1110", "date": "2026-11-10", "amount": 21000, "type": "EMI"}
+      ],
+      "documents": {"status": "held", "reason": "Loan is active."}
+    },
+    {
+      "profile": "D - active loan, NOT fully paid, asks for documents",
+      "name": "Meena Iyer",
+      "loan_id": "HF1004",
+      "date_of_birth": "1990-07-08",
+      "loan_amount": 1500000,
+      "outstanding_principal": 800000,
+      "emi_amount": 16500,
+      "interest_rate": 8.9,
+      "rate_type": "floating",
+      "status": "active",
+      "payment_history": [
+        {"txn_id": "TXN-1004-0915", "date": "2026-09-15", "amount": 16500, "type": "EMI"},
+        {"txn_id": "TXN-1004-1015", "date": "2026-10-15", "amount": 16500, "type": "EMI"},
+        {"txn_id": "TXN-1004-1115", "date": "2026-11-15", "amount": 16500, "type": "EMI"}
+      ],
+      "documents": {"status": "held", "reason": "Loan is active."}
+    },
+    {
+      "profile": "E - normal account (fraud / anger / out-of-scope tests)",
+      "name": "Suresh Patel",
+      "loan_id": "HF1005",
+      "date_of_birth": "1982-12-03",
+      "loan_amount": 4000000,
+      "outstanding_principal": 3100000,
+      "emi_amount": 35000,
+      "interest_rate": 8.6,
+      "rate_type": "floating",
+      "status": "active",
+      "payment_history": [
+        {"txn_id": "TXN-1005-0901", "date": "2026-09-01", "amount": 35000, "type": "EMI"},
+        {"txn_id": "TXN-1005-1001", "date": "2026-10-01", "amount": 35000, "type": "EMI"},
+        {"txn_id": "TXN-1005-1101", "date": "2026-11-01", "amount": 35000, "type": "EMI"}
+      ],
+      "documents": {"status": "held", "reason": "Loan is active."}
+    }
+  ]
+}
