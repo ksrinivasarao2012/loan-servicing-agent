@@ -11,7 +11,11 @@ All checks are deterministic (no LLM judge). They read the tool-call log and rep
 - grounded:    every number / ticket id / handoff id in the replies appears in a tool
                output, the SOP text, or the customer's own messages (hallucination check)
 - facts:       key facts appear in the final reply
-A case passes only if all five pass.
+- clean:       no internal codes (words_with_underscores, e.g. a handoff reason) in any reply
+A case passes only if all six pass.
+
+    uv run python evals/run_evals.py --rescore evals/results_run1.json
+re-scores saved traces with the current scorer (no LLM calls).
 """
 
 from __future__ import annotations
@@ -33,6 +37,7 @@ from loan_agent.retrieval import default_index  # noqa: E402
 
 ID_RE = re.compile(r"\b(?:RF|HO|TXN)-[A-Z0-9-]*[A-Z0-9]\b", re.I)
 NUM_RE = re.compile(r"\d[\d,]*(?:\.\d+)?")
+CODE_RE = re.compile(r"\b[a-z]+(?:_[a-z]+)+\b")
 
 
 # --------------------------------------------------------------- checkers
@@ -103,6 +108,9 @@ def score_case(case: dict, traces: list[dict]) -> dict:
     facts_bad = [f for f in exp.get("reply_must_not_contain", []) if norm(f) in final]
     facts_ok = not facts_missing and not facts_bad
 
+    codes = sorted({c for t in traces for c in CODE_RE.findall(t["reply"])})
+    clean_ok = not codes
+
     retr = [r for t in traces for r in t.get("retrieval", [])]
     notes = []
     if not intent_ok:
@@ -121,11 +129,13 @@ def score_case(case: dict, traces: list[dict]) -> dict:
         notes.append(f"reply missing {facts_missing}")
     if facts_bad:
         notes.append(f"reply should not have {facts_bad}")
+    if codes:
+        notes.append(f"internal codes in reply {codes}")
     return {
         "id": case["id"], "category": case["category"],
         "intent": intent_ok, "tools": tools_ok, "escalation": escalation_ok,
-        "grounded": grounded_ok, "facts": facts_ok,
-        "passed": all([intent_ok, tools_ok, escalation_ok, grounded_ok, facts_ok]),
+        "grounded": grounded_ok, "facts": facts_ok, "clean": clean_ok,
+        "passed": all([intent_ok, tools_ok, escalation_ok, grounded_ok, facts_ok, clean_ok]),
         "retrieval_hits": sum(r["top_sop"] == r["intent"] for r in retr),
         "retrieval_total": len(retr),
         "llm_calls": sum(t["llm_calls"] for t in traces),
@@ -157,17 +167,17 @@ def pct(rows, key):
     return f"{sum(r[key] for r in rows)}/{len(rows)} ({100 * sum(r[key] for r in rows) / len(rows):.0f}%)"
 
 
-def to_markdown(rows: list[dict], model: str) -> str:
+def to_markdown(rows: list[dict], model: str, title: str = "Eval results", when: str | None = None) -> str:
     mark = lambda b: "✅" if b else "❌"  # noqa: E731
     hits = sum(r["retrieval_hits"] for r in rows)
     total = sum(r["retrieval_total"] for r in rows)
     lines = [
-        "# Eval results",
+        f"# {title}",
         "",
         f"- Agent: A (rules-first)  ",
         f"- Model: `{model}`  ",
-        f"- Run at: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}  ",
-        f"- Cases: {len(rows)}, LLM calls: {sum(r['llm_calls'] for r in rows)}",
+        f"- Run at: {when or datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}  ",
+        f"- Cases: {len(rows)}, LLM calls: {sum(r['llm_calls'] for r in rows)} (retries after rate limits included)",
         "",
         "| Metric | Score |",
         "|---|---|",
@@ -176,15 +186,16 @@ def to_markdown(rows: list[dict], model: str) -> str:
         f"| Escalation correctness | {pct(rows, 'escalation')} |",
         f"| No hallucinated numbers/ids | {pct(rows, 'grounded')} |",
         f"| Key facts in reply | {pct(rows, 'facts')} |",
+        f"| No internal codes in reply | {pct(rows, 'clean')} |",
         f"| **Cases fully passed** | **{pct(rows, 'passed')}** |",
         f"| BM25 top-1 SOP = intent (info only) | {hits}/{total} |",
         "",
-        "| Case | Category | Intent | SOP/tools | Escalation | Grounded | Facts | Pass | Notes |",
-        "|---|---|---|---|---|---|---|---|---|",
+        "| Case | Category | Intent | SOP/tools | Escalation | Grounded | Facts | Clean | Pass | Notes |",
+        "|---|---|---|---|---|---|---|---|---|---|",
     ]
     for r in rows:
         lines.append(f"| {r['id']} | {r['category']} | {mark(r['intent'])} | {mark(r['tools'])} | "
-                     f"{mark(r['escalation'])} | {mark(r['grounded'])} | {mark(r['facts'])} | "
+                     f"{mark(r['escalation'])} | {mark(r['grounded'])} | {mark(r['facts'])} | {mark(r['clean'])} | "
                      f"{mark(r['passed'])} | {r['notes'] or ''} |")
     return "\n".join(lines) + "\n"
 
@@ -199,9 +210,18 @@ def main():
     ap.add_argument("--only", default=None, help="comma-separated case ids")
     ap.add_argument("--sleep", type=float, default=4.0, help="seconds between turns (free-tier limits)")
     ap.add_argument("--out", default=str(ROOT / "evals" / "results.md"))
+    ap.add_argument("--rescore", default=None, help="re-score a saved results .json (no LLM calls)")
+    ap.add_argument("--model", default="(see original run)", help="model label for --rescore")
     args = ap.parse_args()
 
     cases = json.loads((ROOT / "evals" / "cases.json").read_text(encoding="utf-8"))["cases"]
+    if args.rescore:
+        saved = {r["case"]: r["traces"] for r in json.loads(Path(args.rescore).read_text(encoding="utf-8"))}
+        rows = [score_case(c, saved[c["id"]]) for c in cases if c["id"] in saved]
+        md = to_markdown(rows, args.model, title=f"Re-score of {Path(args.rescore).name} with current scorer",
+                         when="(saved run)")
+        print(md)
+        return
     if args.only:
         keep = set(args.only.split(","))
         cases = [c for c in cases if c["id"] in keep]

@@ -124,3 +124,11 @@ def test_bad_llm_json_falls_back_to_handoff():
     a = Agent(FakeLLM(broken))
     t = a.run_turn("asdkjh qwe")
     assert t["handoffs"][0]["reason"] == "no_matching_sop"
+
+
+def test_reply_prompt_never_sees_internal_handoff_codes():
+    a = agent_with({"idiots": understanding(angry=True)})
+    t = a.run_turn("You are useless idiots")
+    assert t["handoffs"][0]["reason"] == "very_angry_or_abusive"  # kept in the log
+    assert "very_angry_or_abusive" not in t["reply"]  # reply prompt only got plain words
+    assert "your complaint" in t["reply"]

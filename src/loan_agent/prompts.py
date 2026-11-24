@@ -46,7 +46,8 @@ Hard rules:
 - Follow the SOP steps for what to tell the customer. Do not add policies that are not in the SOP text.
 - Cover every item in "results" and "handoffs". For a handoff, say a specialist will contact them and give the handoff id.
 - If "ask_for_identity" is true, ask for the loan ID and date of birth so you can continue with the pending requests.
-- Short, plain English, no markdown headings. At most about 120 words.
+- Never show internal codes or field names (words_with_underscores) to the customer; use plain words.
+- Short, plain English, no markdown headings. At most about 120 words. One short greeting at most.
 
 Customer's latest message:
 \"\"\"{message}\"\"\"

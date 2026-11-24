@@ -47,6 +47,17 @@ HANDOFF_REASON = {
 }
 
 
+# What the customer is told a handoff is about. Internal reason codes stay in
+# the logs; they must never appear in a reply (an eval check enforces this).
+HANDOFF_ABOUT = {
+    "fraud_or_unauthorised_transaction": "your report of a transaction you did not authorise",
+    "customer_asked_for_human": "your request to speak with a person",
+    "no_matching_sop": "a request our specialist team handles",
+    "very_angry_or_abusive": "your complaint",
+    "verification_failed_twice": "confirming your identity, as the details did not match twice",
+}
+
+
 @dataclass
 class Session:
     """Everything the agent remembers between turns of one conversation."""
@@ -225,7 +236,8 @@ class Agent:
 
         facts = {
             "results": results,
-            "handoffs": [{"reason": h["reason"], "handoff_id": h["handoff_id"]} for h in handoffs],
+            "handoffs": [{"about": HANDOFF_ABOUT[h["reason"]], "handoff_id": h["handoff_id"]}
+                         for h in handoffs],
             "ask_for_identity": ask,
             "identity_check": v,
         }

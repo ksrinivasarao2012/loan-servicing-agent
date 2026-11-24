@@ -26,3 +26,8 @@ def test_invented_number_and_ticket_are_caught():
 
 def test_date_parts_allowed():
     assert ungrounded("Debited on 5 November 2026.", ['{"date": "2026-11-05"}']) == []
+
+
+def test_internal_code_check():
+    from run_evals import CODE_RE
+    assert CODE_RE.findall("about the very_angry_or_abusive matter, ticket RF-HF1001-001") == ["very_angry_or_abusive"]
