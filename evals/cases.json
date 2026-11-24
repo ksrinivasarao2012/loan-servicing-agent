@@ -1,0 +1,233 @@
+{
+  "_how_to_read": "Each case is a conversation (1+ customer turns). 'expect' is checked against the agent's tool-call log and replies. intents: must all be detected; intents_optional: allowed extras. tools_required: each must be called with at least these inputs. tools_forbidden: must never be called. reply_must_contain: facts that must appear in the final reply (numbers compared without commas/spaces, case-insensitive).",
+  "cases": [
+    {
+      "id": "C01", "category": "single-intent",
+      "turns": ["My EMI got deducted twice this month. Loan HF1001, DOB 12-04-1988."],
+      "expect": {
+        "intents": ["duplicate_emi_debit"], "sops": ["duplicate_emi_debit"],
+        "tools_required": [
+          {"tool": "verify_customer", "inputs": {"loan_id": "HF1001"}},
+          {"tool": "get_payments", "inputs": {"loan_id": "HF1001"}},
+          {"tool": "raise_refund_ticket", "inputs": {"loan_id": "HF1001", "transaction_ids": ["TXN-1001-1105B"]}}
+        ],
+        "tools_forbidden": ["create_handoff"], "handoff": false,
+        "reply_must_contain": ["RF-HF1001-001", "5-7", "28500"]
+      }
+    },
+    {
+      "id": "C02", "category": "single-intent (identity given in 2nd turn)",
+      "turns": ["Hi, I think I was charged twice for my home loan EMI.", "HF1001, 1988-04-12"],
+      "expect": {
+        "intents": ["duplicate_emi_debit"], "sops": ["duplicate_emi_debit"],
+        "tools_required": [
+          {"tool": "verify_customer", "inputs": {"loan_id": "HF1001"}},
+          {"tool": "raise_refund_ticket", "inputs": {"transaction_ids": ["TXN-1001-1105B"]}}
+        ],
+        "tools_forbidden": ["create_handoff"], "handoff": false,
+        "reply_must_contain": ["RF-HF1001-001", "5-7"]
+      }
+    },
+    {
+      "id": "C03", "category": "single-intent (claimed duplicate not found)",
+      "turns": ["I was double charged for my EMI. HF1003, 22/01/1985"],
+      "expect": {
+        "intents": ["duplicate_emi_debit"], "sops": ["duplicate_emi_debit"],
+        "tools_required": [{"tool": "get_payments", "inputs": {"loan_id": "HF1003"}}],
+        "tools_forbidden": ["raise_refund_ticket", "create_handoff"], "handoff": false,
+        "reply_must_contain": ["21000"]
+      }
+    },
+    {
+      "id": "C04", "category": "single-intent",
+      "turns": ["HF1003 1985-01-22 I want to close my loan early, how much do I need to pay?"],
+      "expect": {
+        "intents": ["foreclosure"], "sops": ["foreclosure"],
+        "tools_required": [{"tool": "get_foreclosure_amount", "inputs": {"loan_id": "HF1003"}}],
+        "tools_forbidden": ["create_handoff"], "handoff": false,
+        "reply_must_contain": ["1224000", "24000", "1200000"]
+      }
+    },
+    {
+      "id": "C05", "category": "single-intent (floating rate, no charge)",
+      "turns": ["What's the foreclosure amount for HF1005? DOB 03/12/1982"],
+      "expect": {
+        "intents": ["foreclosure"], "sops": ["foreclosure"],
+        "tools_required": [{"tool": "get_foreclosure_amount", "inputs": {"loan_id": "HF1005"}}],
+        "tools_forbidden": ["create_handoff"], "handoff": false,
+        "reply_must_contain": ["3100000"]
+      }
+    },
+    {
+      "id": "C06", "category": "single-intent",
+      "turns": ["My loan is fully paid. Please release my property documents. HF1002, 30-09-1979"],
+      "expect": {
+        "intents": ["property_document_release"], "sops": ["property_document_release"],
+        "tools_required": [{"tool": "get_document_release_status", "inputs": {"loan_id": "HF1002"}}],
+        "tools_forbidden": ["create_handoff"], "handoff": false,
+        "reply_must_contain": ["Madhapur", "2026-11-20"]
+      }
+    },
+    {
+      "id": "C07", "category": "multi-intent",
+      "turns": ["HF1003, DOB 22-01-1985. Tell me my foreclosure amount and also when I can get my property papers."],
+      "expect": {
+        "intents": ["foreclosure", "property_document_release"], "sops": ["foreclosure", "property_document_release"],
+        "tools_required": [
+          {"tool": "get_foreclosure_amount", "inputs": {"loan_id": "HF1003"}},
+          {"tool": "get_document_release_status", "inputs": {"loan_id": "HF1003"}}
+        ],
+        "tools_forbidden": ["create_handoff"], "handoff": false,
+        "reply_must_contain": ["1224000"]
+      }
+    },
+    {
+      "id": "C08", "category": "multi-intent",
+      "turns": ["HF1001 1988-04-12: my EMI was debited twice on 5 Nov, and what would it cost to foreclose my loan?"],
+      "expect": {
+        "intents": ["duplicate_emi_debit", "foreclosure"], "sops": ["duplicate_emi_debit", "foreclosure"],
+        "tools_required": [
+          {"tool": "raise_refund_ticket", "inputs": {"transaction_ids": ["TXN-1001-1105B"]}},
+          {"tool": "get_foreclosure_amount", "inputs": {"loan_id": "HF1001"}}
+        ],
+        "tools_forbidden": ["create_handoff"], "handoff": false,
+        "reply_must_contain": ["RF-HF1001-001", "2450000"]
+      }
+    },
+    {
+      "id": "C09", "category": "multi-intent (closed loan)",
+      "turns": ["HF1002 1979-09-30 I want my sale deed back and what is my payoff amount?"],
+      "expect": {
+        "intents": ["property_document_release", "foreclosure"], "sops": ["property_document_release", "foreclosure"],
+        "tools_required": [
+          {"tool": "get_document_release_status", "inputs": {"loan_id": "HF1002"}},
+          {"tool": "get_foreclosure_amount", "inputs": {"loan_id": "HF1002"}}
+        ],
+        "tools_forbidden": ["create_handoff"], "handoff": false,
+        "reply_must_contain": ["Madhapur"]
+      }
+    },
+    {
+      "id": "C10", "category": "multi-intent (identity given in 2nd turn)",
+      "turns": ["Two things: my EMI was taken twice, and I want the foreclosure figure.", "HF1001 and 12/04/1988"],
+      "expect": {
+        "intents": ["duplicate_emi_debit", "foreclosure"], "sops": ["duplicate_emi_debit", "foreclosure"],
+        "tools_required": [
+          {"tool": "raise_refund_ticket", "inputs": {"transaction_ids": ["TXN-1001-1105B"]}},
+          {"tool": "get_foreclosure_amount", "inputs": {"loan_id": "HF1001"}}
+        ],
+        "tools_forbidden": ["create_handoff"], "handoff": false,
+        "reply_must_contain": ["RF-HF1001-001", "2450000"]
+      }
+    },
+    {
+      "id": "C11", "category": "fraud",
+      "turns": ["Someone took Rs 35000 from my account that I never authorised. HF1005, 1982-12-03"],
+      "expect": {
+        "intents": ["fraud_report"], "sops": [],
+        "tools_required": [{"tool": "create_handoff", "inputs": {"reason": "fraud_or_unauthorised_transaction"}}],
+        "tools_forbidden": ["raise_refund_ticket"], "handoff": true,
+        "reply_must_contain": ["HO-HF1005-001"]
+      }
+    },
+    {
+      "id": "C12", "category": "fraud + safe request",
+      "turns": ["HF1005 1982-12-03. I see a fraudulent transaction I did not make, and separately please tell me my foreclosure amount."],
+      "expect": {
+        "intents": ["fraud_report", "foreclosure"], "sops": ["foreclosure"],
+        "tools_required": [
+          {"tool": "create_handoff", "inputs": {"reason": "fraud_or_unauthorised_transaction"}},
+          {"tool": "get_foreclosure_amount", "inputs": {"loan_id": "HF1005"}}
+        ],
+        "tools_forbidden": ["raise_refund_ticket"], "handoff": true,
+        "reply_must_contain": ["HO-HF1005-001", "3100000"]
+      }
+    },
+    {
+      "id": "C13", "category": "angry customer",
+      "turns": ["This is ridiculous, third time I am writing. You people are useless idiots! HF1001 1988-04-12"],
+      "expect": {
+        "intents": ["angry"], "intents_optional": ["human_request"], "sops": [],
+        "tools_required": [{"tool": "create_handoff", "inputs": {"reason": "very_angry_or_abusive"}}],
+        "tools_forbidden": ["raise_refund_ticket"], "handoff": true,
+        "reply_must_contain": ["HO-HF1001-001"]
+      }
+    },
+    {
+      "id": "C14", "category": "asks for a human",
+      "turns": ["Stop wasting my time with this bot, I want to talk to a real person NOW"],
+      "expect": {
+        "intents": ["human_request"], "intents_optional": ["angry"], "sops": [],
+        "tools_required": [{"tool": "create_handoff", "inputs": {"reason": "customer_asked_for_human"}}],
+        "tools_forbidden": ["get_loan", "get_payments"], "handoff": true,
+        "reply_must_contain": ["HO-UNKNOWN-001"]
+      }
+    },
+    {
+      "id": "C15", "category": "out-of-scope",
+      "turns": ["Can I get a top-up loan of 5 lakh on my existing home loan?"],
+      "expect": {
+        "intents": ["out_of_scope"], "sops": [],
+        "tools_required": [{"tool": "create_handoff", "inputs": {"reason": "no_matching_sop"}}],
+        "tools_forbidden": ["verify_customer"], "handoff": true,
+        "reply_must_contain": ["HO-UNKNOWN-001"]
+      }
+    },
+    {
+      "id": "C16", "category": "out-of-scope + safe request",
+      "turns": ["HF1003 1985-01-22. Please update my mobile number, and also give me the foreclosure amount."],
+      "expect": {
+        "intents": ["out_of_scope", "foreclosure"], "sops": ["foreclosure"],
+        "tools_required": [
+          {"tool": "create_handoff", "inputs": {"reason": "no_matching_sop"}},
+          {"tool": "get_foreclosure_amount", "inputs": {"loan_id": "HF1003"}}
+        ],
+        "tools_forbidden": [], "handoff": true,
+        "reply_must_contain": ["1224000"]
+      }
+    },
+    {
+      "id": "C17", "category": "failed verification (twice)",
+      "turns": ["Foreclosure amount for HF1003 please, DOB 1990-01-01", "Sorry, my DOB is 1991-02-02"],
+      "expect": {
+        "intents": ["foreclosure"], "sops": [],
+        "tools_required": [{"tool": "create_handoff", "inputs": {"reason": "verification_failed_twice"}}],
+        "tools_forbidden": ["get_foreclosure_amount", "get_loan"], "handoff": true,
+        "reply_must_contain": ["HO-HF1003-001"]
+      }
+    },
+    {
+      "id": "C18", "category": "failed verification (once, then correct)",
+      "turns": ["Release my property documents. HF1002, DOB 1979-09-03", "Sorry, typo. It is 1979-09-30"],
+      "expect": {
+        "intents": ["property_document_release"], "sops": ["property_document_release"],
+        "tools_required": [{"tool": "get_document_release_status", "inputs": {"loan_id": "HF1002"}}],
+        "tools_forbidden": ["create_handoff"], "handoff": false,
+        "reply_must_contain": ["Madhapur"]
+      }
+    },
+    {
+      "id": "C19", "category": "documents requested, loan not closed",
+      "turns": ["HF1004, 08/07/1990. I want my property documents back please."],
+      "expect": {
+        "intents": ["property_document_release"], "sops": ["property_document_release"],
+        "tools_required": [{"tool": "get_document_release_status", "inputs": {"loan_id": "HF1004"}}],
+        "tools_forbidden": ["create_handoff"], "handoff": false,
+        "reply_must_contain": ["800000"], "reply_must_not_contain": ["Madhapur"]
+      }
+    },
+    {
+      "id": "C20", "category": "documents requested, loan not closed + foreclosure",
+      "turns": ["Meena here, HF1004 1990-07-08. Release my title deed. If that is not possible, how much to close the loan now?"],
+      "expect": {
+        "intents": ["property_document_release", "foreclosure"], "sops": ["property_document_release", "foreclosure"],
+        "tools_required": [
+          {"tool": "get_document_release_status", "inputs": {"loan_id": "HF1004"}},
+          {"tool": "get_foreclosure_amount", "inputs": {"loan_id": "HF1004"}}
+        ],
+        "tools_forbidden": ["create_handoff"], "handoff": false,
+        "reply_must_contain": ["800000"], "reply_must_not_contain": ["Madhapur"]
+      }
+    }
+  ]
+}
