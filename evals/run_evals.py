@@ -190,6 +190,10 @@ def to_markdown(rows: list[dict], model: str) -> str:
 
 
 def main():
+    try:  # Windows consoles can choke on the ✅/❌ marks
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
     ap = argparse.ArgumentParser()
     ap.add_argument("--provider", default=None, help="gemini or groq (default: LLM_PROVIDER)")
     ap.add_argument("--only", default=None, help="comma-separated case ids")
