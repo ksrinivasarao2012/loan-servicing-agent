@@ -69,7 +69,7 @@ Handoff summary sent to the human: *Reason: fraud_or_unauthorised_transaction. C
 
 ## Eval results
 
-Copied from [`evals/results.md`](evals/results.md) (full traces in `evals/results.json`). Deterministic checks only, no LLM judge.
+Copied from [`evals/results.md`](evals/results.md) (full traces in `evals/results.json`). RESULTS ARE BEING RE-RUN after the latest fix; the table below is run 4 (`evals/results_run4.md`). Deterministic checks only, no LLM judge.
 
 - Agent: A (rules-first)  
 - Model: `gemini:gemini-3.5-flash-lite`  

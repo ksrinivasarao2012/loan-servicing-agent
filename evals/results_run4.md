@@ -1,4 +1,4 @@
-# Eval results
+# Eval results - run 4 (before the one-handoff-per-message fix)
 
 - Agent: A (rules-first)  
 - Model: `gemini:gemini-3.5-flash-lite`  

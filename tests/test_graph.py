@@ -90,8 +90,13 @@ def test_keyword_rule_catches_fraud_the_llm_missed():
 def test_human_request_and_anger():
     a = agent_with({"useless": understanding(angry=True)})
     t = a.run_turn("This is useless, you idiots. Let me speak to a manager!")
-    reasons = {h["reason"] for h in t["handoffs"]}
-    assert reasons == {"very_angry_or_abusive", "customer_asked_for_human"}
+    # One case, not two: the human request is the main reason, anger is noted.
+    assert len(t["handoffs"]) == 1
+    h = t["handoffs"][0]
+    assert h["reason"] == "customer_asked_for_human"
+    assert h["reasons"] == ["customer_asked_for_human", "very_angry_or_abusive"]
+    assert "(also: very_angry_or_abusive)" in h["summary"]
+    assert tools(t) == ["create_handoff"]
 
 
 def test_out_of_scope_goes_to_human():
@@ -150,3 +155,19 @@ def test_handoff_summary_knows_identity_was_verified():
     b = agent_with({"fraud": understanding("fraud_report")})
     t2 = b.run_turn("fraud on my account")  # no identity given: still handed off
     assert "identity not verified" in t2["handoffs"][0]["summary"]
+
+
+def test_verification_handoff_quotes_the_customer():
+    a = agent_with({"foreclosure": understanding("foreclosure")})
+    a.run_turn("HF1003 1999-01-01 foreclosure amount please")
+    t = a.run_turn("HF1003 1999-02-02")
+    summary = t["handoffs"][0]["summary"]
+    assert 'Customer said: "HF1003 1999-02-02"' in summary
+    assert "Other requests: foreclosure" in summary
+
+
+def test_fraud_outranks_other_reasons():
+    a = agent_with({"fraud": understanding("fraud_report", "out_of_scope", angry=True)})
+    t = a.run_turn("fraud on my account, idiots, and change my address")
+    assert len(t["handoffs"]) == 1
+    assert t["handoffs"][0]["reason"] == "fraud_or_unauthorised_transaction"

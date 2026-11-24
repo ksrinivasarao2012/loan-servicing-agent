@@ -58,6 +58,15 @@ HANDOFF_ABOUT = {
     "verification_failed_twice": "confirming your identity",
 }
 
+# Most serious first: the first reason found becomes the handoff's main reason.
+HANDOFF_PRIORITY = [
+    "fraud_or_unauthorised_transaction",
+    "verification_failed_twice",
+    "customer_asked_for_human",
+    "very_angry_or_abusive",
+    "no_matching_sop",
+]
+
 
 @dataclass
 class Session:
@@ -79,6 +88,7 @@ class TurnState(TypedDict, total=False):
     dob: str | None
     handoffs: list[dict]
     verification: str
+    blocked_requests: list[dict]
     results: list[dict]
     retrieval: list[dict]
     reply: str
@@ -183,14 +193,19 @@ class Agent:
                 "angry": bool(raw.get("very_angry_or_abusive")), "dob": dob}
 
     def escalate(self, state: TurnState) -> dict:
-        reqs = state["requests"]
-        triggers = [(r["intent"], r["text"]) for r in reqs if r["intent"] in HANDOFF_INTENTS]
+        """At most ONE handoff per message: the most serious reason is the main one,
+        the others are listed in the summary, so the customer gets one case and one id."""
+        reasons = [HANDOFF_REASON[r["intent"]] for r in state["requests"] if r["intent"] in HANDOFF_INTENTS]
         if state.get("angry"):
-            triggers.append(("angry", state["message"][:200]))
-        handoffs = list(state.get("handoffs", []))  # verify may already have added one
-        for intent, text in triggers:
-            handoffs.append(self._handoff(HANDOFF_REASON[intent], text, reqs))
-        return {"handoffs": handoffs}
+            reasons.append(HANDOFF_REASON["angry"])
+        if state.get("verification") == "failed_twice":
+            reasons.append(HANDOFF_REASON["verification"])
+        reasons = sorted(set(reasons), key=HANDOFF_PRIORITY.index)
+        if not reasons:
+            return {"handoffs": []}
+        requests = state["requests"] + [r for r in state.get("blocked_requests", [])
+                                        if r not in state["requests"]]
+        return {"handoffs": [self._handoff(reasons, state["message"], requests)]}
 
     def verify(self, state: TurnState) -> dict:
         s = self.session
@@ -203,10 +218,9 @@ class Agent:
                 return {"verification": "ok"}
             s.failed_verifications += 1
             if s.failed_verifications >= 2:
-                h = self._handoff(HANDOFF_REASON["verification"],
-                                  "Identity verification failed twice.", state["requests"])
-                s.pending = []
-                return {"verification": "failed_twice", "sop_requests": [], "handoffs": [h]}
+                s.pending = []  # escalate will hand this off
+                return {"verification": "failed_twice", "sop_requests": [],
+                        "blocked_requests": state["sop_requests"]}
             s.pending = state["sop_requests"]
             return {"verification": "failed_once"}
         s.pending = state["sop_requests"]
@@ -243,8 +257,8 @@ class Agent:
 
         facts = {
             "results": results,
-            "handoffs": [{"about": HANDOFF_ABOUT[h["reason"]], "handoff_id": h["handoff_id"]}
-                         for h in handoffs],
+            "handoffs": [{"about": " and ".join(HANDOFF_ABOUT[r] for r in h["reasons"]),
+                          "handoff_id": h["handoff_id"]} for h in handoffs],
             "ask_for_identity": ask,
             "identity_check": v,
         }
@@ -261,18 +275,21 @@ class Agent:
         return {"reply": text}
 
     # ---------------------------------------------------------------- helpers
-    def _handoff(self, reason: str, text: str, requests: list[dict]) -> dict:
+    def _handoff(self, reasons: list[str], message: str, requests: list[dict]) -> dict:
         s = self.session
-        if reason in s.handoffs_by_reason:  # don't open duplicate cases
-            return {"reason": reason, "handoff_id": s.handoffs_by_reason[reason], "reused": True}
+        main, also = reasons[0], reasons[1:]
+        if main in s.handoffs_by_reason:  # same issue again later: reuse the open case
+            return {"reason": main, "reasons": reasons, "handoff_id": s.handoffs_by_reason[main],
+                    "reused": True}
         verified = bool(s.loan_id and s.loan_id in s.system.verified)
-        others = [r["intent"] for r in requests if r["text"] != text] or ["none"]
-        summary = (f"Reason: {reason}. Customer said: \"{text}\".\n"
+        handled = [r["intent"] for r in requests if r["intent"] not in HANDOFF_INTENTS] or ["none"]
+        summary = (f"Reason: {main}" + (f" (also: {', '.join(also)})" if also else "")
+                   + f". Customer said: \"{message[:200]}\".\n"
                    f"Loan ID: {s.loan_id or 'not given'} (identity {'verified' if verified else 'not verified'}). "
-                   f"Other requests in this message: {', '.join(others)}.")
-        hid = s.system.create_handoff(s.loan_id, reason, summary)
-        s.handoffs_by_reason[reason] = hid
-        return {"reason": reason, "handoff_id": hid, "summary": summary}
+                   f"Other requests: {', '.join(handled)}.")
+        hid = s.system.create_handoff(s.loan_id, main, summary)
+        s.handoffs_by_reason[main] = hid
+        return {"reason": main, "reasons": reasons, "handoff_id": hid, "summary": summary}
 
 
 # ---------------------------------------------------------------- SOP runners
