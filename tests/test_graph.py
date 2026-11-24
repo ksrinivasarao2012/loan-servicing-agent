@@ -75,7 +75,7 @@ def test_fraud_handoff_but_safe_request_still_done():
     t = a.run_turn("HF1005 1982-12-03. There is a fraud debit I never made. Also foreclosure amount?")
     assert [h["reason"] for h in t["handoffs"]] == ["fraud_or_unauthorised_transaction"]
     assert "create_handoff" in tools(t) and "get_foreclosure_amount" in tools(t)
-    summary = t["tool_calls"][0]["inputs"]["summary"]
+    summary = next(c for c in t["tool_calls"] if c["tool"] == "create_handoff")["inputs"]["summary"]
     assert 2 <= len(summary.splitlines()) <= 3
 
 
@@ -141,3 +141,12 @@ def test_llm_errors_are_reported_in_trace():
     t = a.run_turn("HF1003 1985-01-22 foreclosure amount")
     assert len(t["llm_errors"]) == 2  # understand + reply both failed
     assert t["handoffs"][0]["reason"] == "no_matching_sop"  # safe fallback
+
+
+def test_handoff_summary_knows_identity_was_verified():
+    a = agent_with({"mobile": understanding("out_of_scope", "foreclosure")})
+    t = a.run_turn("HF1003 1985-01-22 update my mobile number and give foreclosure amount")
+    assert "identity verified" in t["handoffs"][0]["summary"]
+    b = agent_with({"fraud": understanding("fraud_report")})
+    t2 = b.run_turn("fraud on my account")  # no identity given: still handed off
+    assert "identity not verified" in t2["handoffs"][0]["summary"]

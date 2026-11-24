@@ -1,0 +1,510 @@
+[
+ {
+  "case": "C15",
+  "turns": [
+   "Can I get a top-up loan of 5 lakh on my existing home loan?"
+  ],
+  "traces": [
+   {
+    "reply": "Hello! Thank you for contacting Velmora Home Loans. \n\nRegarding your request, our specialist team handles inquiries of this nature. A specialist will contact you to assist you further, and your reference handoff ID is HO-UNKNOWN-001. \n\nPlease let us know if you need any other help today.",
+    "intents": [
+     "out_of_scope"
+    ],
+    "requests": [
+     {
+      "intent": "out_of_scope",
+      "text": "Can I get a top-up loan of 5 lakh on my existing home loan?"
+     }
+    ],
+    "sops_used": [],
+    "retrieval": [],
+    "verification": "not_needed",
+    "tool_calls": [
+     {
+      "tool": "create_handoff",
+      "inputs": {
+       "loan_id": null,
+       "reason": "no_matching_sop",
+       "summary": "Reason: no_matching_sop. Customer said: \"Can I get a top-up loan of 5 lakh on my existing home loan?\".\nLoan ID: not given (identity not verified). Other requests in this message: none."
+      },
+      "output": "HO-UNKNOWN-001"
+     }
+    ],
+    "handoffs": [
+     {
+      "reason": "no_matching_sop",
+      "handoff_id": "HO-UNKNOWN-001",
+      "summary": "Reason: no_matching_sop. Customer said: \"Can I get a top-up loan of 5 lakh on my existing home loan?\".\nLoan ID: not given (identity not verified). Other requests in this message: none."
+     }
+    ],
+    "results": [],
+    "llm_calls": 2,
+    "llm_errors": []
+   }
+  ]
+ },
+ {
+  "case": "C16",
+  "turns": [
+   "HF1003 1985-01-22. Please update my mobile number, and also give me the foreclosure amount."
+  ],
+  "traces": [
+   {
+    "reply": "Hello! \n\nFor your foreclosure request, your outstanding principal is Rs. 1,200,000. Because your loan is a fixed-rate loan, the foreclosure charge is 2.0% (Rs. 24,000), making the total foreclosure amount Rs. 1,224,000. This is valid for today only. Next steps: pay the total by bank transfer to your loan account, receive a closure letter, and then request property document release.\n\nRegarding your request to update your mobile number, a specialist will contact you (Handoff ID: HO-HF1003-001). \n\nThank you for choosing Velmora Home Loans.",
+    "intents": [
+     "out_of_scope",
+     "foreclosure"
+    ],
+    "requests": [
+     {
+      "intent": "out_of_scope",
+      "text": "Please update my mobile number"
+     },
+     {
+      "intent": "foreclosure",
+      "text": "give me the foreclosure amount"
+     }
+    ],
+    "sops_used": [
+     "foreclosure"
+    ],
+    "retrieval": [
+     {
+      "intent": "foreclosure",
+      "query": "give me the foreclosure amount",
+      "top_sop": "foreclosure",
+      "scores": {
+       "foreclosure": 0.1,
+       "property_document_release": 0.05,
+       "duplicate_emi_debit": 0.04
+      }
+     }
+    ],
+    "verification": "ok",
+    "tool_calls": [
+     {
+      "tool": "create_handoff",
+      "inputs": {
+       "loan_id": "HF1003",
+       "reason": "no_matching_sop",
+       "summary": "Reason: no_matching_sop. Customer said: \"Please update my mobile number\".\nLoan ID: HF1003 (identity not verified). Other requests in this message: foreclosure."
+      },
+      "output": "HO-HF1003-001"
+     },
+     {
+      "tool": "verify_customer",
+      "inputs": {
+       "loan_id": "HF1003",
+       "date_of_birth": "1985-01-22"
+      },
+      "output": true
+     },
+     {
+      "tool": "get_foreclosure_amount",
+      "inputs": {
+       "loan_id": "HF1003"
+      },
+      "output": {
+       "outstanding_principal": 1200000,
+       "rate_type": "fixed",
+       "foreclosure_charge_percent": 2.0,
+       "foreclosure_charge": 24000,
+       "total_foreclosure_amount": 1224000
+      }
+     }
+    ],
+    "handoffs": [
+     {
+      "reason": "no_matching_sop",
+      "handoff_id": "HO-HF1003-001",
+      "summary": "Reason: no_matching_sop. Customer said: \"Please update my mobile number\".\nLoan ID: HF1003 (identity not verified). Other requests in this message: foreclosure."
+     }
+    ],
+    "results": [
+     {
+      "intent": "foreclosure",
+      "sop_id": "foreclosure",
+      "request": "give me the foreclosure amount",
+      "result": {
+       "outstanding_principal": 1200000,
+       "rate_type": "fixed",
+       "foreclosure_charge_percent": 2.0,
+       "foreclosure_charge": 24000,
+       "total_foreclosure_amount": 1224000
+      }
+     }
+    ],
+    "llm_calls": 2,
+    "llm_errors": []
+   }
+  ]
+ },
+ {
+  "case": "C17",
+  "turns": [
+   "Foreclosure amount for HF1003 please, DOB 1990-01-01",
+   "Sorry, my DOB is 1991-02-02"
+  ],
+  "traces": [
+   {
+    "reply": "Sorry, those details did not match our records. Please check your loan ID and date of birth and try again.",
+    "intents": [
+     "foreclosure"
+    ],
+    "requests": [
+     {
+      "intent": "foreclosure",
+      "text": "Foreclosure amount for HF1003 please"
+     }
+    ],
+    "sops_used": [],
+    "retrieval": [],
+    "verification": "failed_once",
+    "tool_calls": [
+     {
+      "tool": "verify_customer",
+      "inputs": {
+       "loan_id": "HF1003",
+       "date_of_birth": "1990-01-01"
+      },
+      "output": false
+     }
+    ],
+    "handoffs": [],
+    "results": [],
+    "llm_calls": 1,
+    "llm_errors": []
+   },
+   {
+    "reply": "Hello. \n\nSince your details did not match twice, a specialist will contact you regarding confirming your identity, as the details did not match twice. Your handoff ID is HO-HF1003-001. \n\nThank you for contacting Velmora Home Loans.",
+    "intents": [
+     "foreclosure"
+    ],
+    "requests": [
+     {
+      "intent": "foreclosure",
+      "text": "Foreclosure amount for HF1003 please, DOB 1991-02-02"
+     }
+    ],
+    "sops_used": [],
+    "retrieval": [],
+    "verification": "failed_twice",
+    "tool_calls": [
+     {
+      "tool": "verify_customer",
+      "inputs": {
+       "loan_id": "HF1003",
+       "date_of_birth": "1991-02-02"
+      },
+      "output": false
+     },
+     {
+      "tool": "create_handoff",
+      "inputs": {
+       "loan_id": "HF1003",
+       "reason": "verification_failed_twice",
+       "summary": "Reason: verification_failed_twice. Customer said: \"Identity verification failed twice.\".\nLoan ID: HF1003 (identity not verified). Other requests in this message: foreclosure."
+      },
+      "output": "HO-HF1003-001"
+     }
+    ],
+    "handoffs": [
+     {
+      "reason": "verification_failed_twice",
+      "handoff_id": "HO-HF1003-001",
+      "summary": "Reason: verification_failed_twice. Customer said: \"Identity verification failed twice.\".\nLoan ID: HF1003 (identity not verified). Other requests in this message: foreclosure."
+     }
+    ],
+    "results": [],
+    "llm_calls": 2,
+    "llm_errors": []
+   }
+  ]
+ },
+ {
+  "case": "C18",
+  "turns": [
+   "Release my property documents. HF1002, DOB 1979-09-03",
+   "Sorry, typo. It is 1979-09-30"
+  ],
+  "traces": [
+   {
+    "reply": "Sorry, those details did not match our records. Please check your loan ID and date of birth and try again.",
+    "intents": [
+     "property_document_release"
+    ],
+    "requests": [
+     {
+      "intent": "property_document_release",
+      "text": "Release my property documents."
+     }
+    ],
+    "sops_used": [],
+    "retrieval": [],
+    "verification": "failed_once",
+    "tool_calls": [
+     {
+      "tool": "verify_customer",
+      "inputs": {
+       "loan_id": "HF1002",
+       "date_of_birth": "1979-09-03"
+      },
+      "output": false
+     }
+    ],
+    "handoffs": [],
+    "results": [],
+    "llm_calls": 1,
+    "llm_errors": []
+   },
+   {
+    "reply": "Hello! \n\nYour property documents are ready for collection at the Velmora Home Loans, Madhapur branch, Hyderabad, from 2026-11-20. \n\nTo collect them, please visit the branch in person with an original photo ID and the loan closure letter. If someone else is collecting on your behalf, they will need an authorisation letter signed by you. \n\nLet us know if you need any further assistance.",
+    "intents": [],
+    "requests": [],
+    "sops_used": [
+     "property_document_release"
+    ],
+    "retrieval": [
+     {
+      "intent": "property_document_release",
+      "query": "Release my property documents.",
+      "top_sop": "property_document_release",
+      "scores": {
+       "property_document_release": 0.15,
+       "foreclosure": 0.07,
+       "duplicate_emi_debit": 0.0
+      }
+     }
+    ],
+    "verification": "ok",
+    "tool_calls": [
+     {
+      "tool": "verify_customer",
+      "inputs": {
+       "loan_id": "HF1002",
+       "date_of_birth": "1979-09-30"
+      },
+      "output": true
+     },
+     {
+      "tool": "get_document_release_status",
+      "inputs": {
+       "loan_id": "HF1002"
+      },
+      "output": {
+       "loan_status": "closed",
+       "status": "ready_for_collection",
+       "branch": "Velmora Home Loans, Madhapur branch, Hyderabad",
+       "ready_from": "2026-11-20"
+      }
+     }
+    ],
+    "handoffs": [],
+    "results": [
+     {
+      "intent": "property_document_release",
+      "sop_id": "property_document_release",
+      "request": "Release my property documents.",
+      "result": {
+       "loan_status": "closed",
+       "status": "ready_for_collection",
+       "branch": "Velmora Home Loans, Madhapur branch, Hyderabad",
+       "ready_from": "2026-11-20"
+      }
+     }
+    ],
+    "llm_calls": 2,
+    "llm_errors": []
+   }
+  ]
+ },
+ {
+  "case": "C19",
+  "turns": [
+   "HF1004, 08/07/1990. I want my property documents back please."
+  ],
+  "traces": [
+   {
+    "reply": "Hello! Thank you for contacting Velmora Home Loans. \n\nOriginal property documents can only be released after your loan is fully paid and closed. Your loan is currently active, and your outstanding principal is Rs. 800,000. \n\nPlease let us know if you would like to share the foreclosure amount to pay it off now. We are here to help!",
+    "intents": [
+     "property_document_release"
+    ],
+    "requests": [
+     {
+      "intent": "property_document_release",
+      "text": "I want my property documents back please."
+     }
+    ],
+    "sops_used": [
+     "property_document_release"
+    ],
+    "retrieval": [
+     {
+      "intent": "property_document_release",
+      "query": "I want my property documents back please.",
+      "top_sop": "property_document_release",
+      "scores": {
+       "property_document_release": 0.1,
+       "foreclosure": 0.04,
+       "duplicate_emi_debit": 0.0
+      }
+     }
+    ],
+    "verification": "ok",
+    "tool_calls": [
+     {
+      "tool": "verify_customer",
+      "inputs": {
+       "loan_id": "HF1004",
+       "date_of_birth": "1990-07-08"
+      },
+      "output": true
+     },
+     {
+      "tool": "get_document_release_status",
+      "inputs": {
+       "loan_id": "HF1004"
+      },
+      "output": {
+       "loan_status": "active",
+       "status": "held",
+       "reason": "Loan is active.",
+       "outstanding_principal": 800000
+      }
+     }
+    ],
+    "handoffs": [],
+    "results": [
+     {
+      "intent": "property_document_release",
+      "sop_id": "property_document_release",
+      "request": "I want my property documents back please.",
+      "result": {
+       "loan_status": "active",
+       "status": "held",
+       "reason": "Loan is active.",
+       "outstanding_principal": 800000
+      }
+     }
+    ],
+    "llm_calls": 2,
+    "llm_errors": []
+   }
+  ]
+ },
+ {
+  "case": "C20",
+  "turns": [
+   "Meena here, HF1004 1990-07-08. Release my title deed. If that is not possible, how much to close the loan now?"
+  ],
+  "traces": [
+   {
+    "reply": "Hello Meena, \n\nYour loan is currently active, so original property documents can only be released after the loan is fully paid. \n\nTo close your loan now, your outstanding principal is Rs. 800,000. Since your loan is on a floating rate, your foreclosure charge is 0%. Your total foreclosure amount is Rs. 800,000, and this quoted amount is valid for today only. \n\nNext steps: pay the total by bank transfer to your loan account to receive a closure letter, after which you can request property document release. \n\nThank you for contacting Velmora Home Loans.",
+    "intents": [
+     "property_document_release",
+     "foreclosure"
+    ],
+    "requests": [
+     {
+      "intent": "property_document_release",
+      "text": "Release my title deed."
+     },
+     {
+      "intent": "foreclosure",
+      "text": "how much to close the loan now?"
+     }
+    ],
+    "sops_used": [
+     "property_document_release",
+     "foreclosure"
+    ],
+    "retrieval": [
+     {
+      "intent": "property_document_release",
+      "query": "Release my title deed.",
+      "top_sop": "property_document_release",
+      "scores": {
+       "property_document_release": 1.36,
+       "foreclosure": 0.02,
+       "duplicate_emi_debit": 0.0
+      }
+     },
+     {
+      "intent": "foreclosure",
+      "query": "how much to close the loan now?",
+      "top_sop": "property_document_release",
+      "scores": {
+       "property_document_release": 0.6,
+       "foreclosure": 0.51,
+       "duplicate_emi_debit": 0.04
+      }
+     }
+    ],
+    "verification": "ok",
+    "tool_calls": [
+     {
+      "tool": "verify_customer",
+      "inputs": {
+       "loan_id": "HF1004",
+       "date_of_birth": "1990-07-08"
+      },
+      "output": true
+     },
+     {
+      "tool": "get_document_release_status",
+      "inputs": {
+       "loan_id": "HF1004"
+      },
+      "output": {
+       "loan_status": "active",
+       "status": "held",
+       "reason": "Loan is active.",
+       "outstanding_principal": 800000
+      }
+     },
+     {
+      "tool": "get_foreclosure_amount",
+      "inputs": {
+       "loan_id": "HF1004"
+      },
+      "output": {
+       "outstanding_principal": 800000,
+       "rate_type": "floating",
+       "foreclosure_charge_percent": 0.0,
+       "foreclosure_charge": 0,
+       "total_foreclosure_amount": 800000
+      }
+     }
+    ],
+    "handoffs": [],
+    "results": [
+     {
+      "intent": "property_document_release",
+      "sop_id": "property_document_release",
+      "request": "Release my title deed.",
+      "result": {
+       "loan_status": "active",
+       "status": "held",
+       "reason": "Loan is active.",
+       "outstanding_principal": 800000
+      }
+     },
+     {
+      "intent": "foreclosure",
+      "sop_id": "foreclosure",
+      "request": "how much to close the loan now?",
+      "result": {
+       "outstanding_principal": 800000,
+       "rate_type": "floating",
+       "foreclosure_charge_percent": 0.0,
+       "foreclosure_charge": 0,
+       "total_foreclosure_amount": 800000
+      }
+     }
+    ],
+    "llm_calls": 2,
+    "llm_errors": []
+   }
+  ]
+ }
+]

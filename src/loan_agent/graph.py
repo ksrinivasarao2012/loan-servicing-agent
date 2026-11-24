@@ -1,13 +1,14 @@
 r"""The agent: a LangGraph flow that handles one customer turn.
 
-    understand -> escalate -> verify --(verified)--> act -> reply
-                                   \--(not yet)--------------> reply
+    understand -> verify -> escalate --(verified)--> act -> reply
+                                     \--(not yet)--------------> reply
 
 - understand: 1 LLM call turns the message into structured requests + flags,
   with keyword rules as a backup for fraud / "I want a human".
-- escalate:   plain code. Fraud, anger, human request, out-of-scope -> create_handoff.
 - verify:     plain code. Loan data only after verify_customer succeeds;
               two failures -> handoff.
+- escalate:   plain code. Fraud, anger, human request, out-of-scope -> create_handoff
+              (whether or not identity is verified).
 - act:        mode "rules" (agent A): plain code runs each SOP's steps in order.
 - reply:      1 LLM call writes the answer from tool outputs + SOP text only.
 """
@@ -54,7 +55,7 @@ HANDOFF_ABOUT = {
     "customer_asked_for_human": "your request to speak with a person",
     "no_matching_sop": "a request our specialist team handles",
     "very_angry_or_abusive": "your complaint",
-    "verification_failed_twice": "confirming your identity, as the details did not match twice",
+    "verification_failed_twice": "confirming your identity",
 }
 
 
@@ -104,9 +105,12 @@ class Agent:
         g.add_node("act", self.act)
         g.add_node("reply", self.reply)
         g.set_entry_point("understand")
-        g.add_edge("understand", "escalate")
-        g.add_edge("escalate", "verify")
-        g.add_conditional_edges("verify", lambda s: "act" if s["verification"] == "ok" else "reply",
+        # verify runs before escalate so handoff summaries know if identity was confirmed.
+        # Escalation never depends on verification: a fraud report from an unverified
+        # caller still reaches a human.
+        g.add_edge("understand", "verify")
+        g.add_edge("verify", "escalate")
+        g.add_conditional_edges("escalate", lambda s: "act" if s["verification"] == "ok" else "reply",
                                 {"act": "act", "reply": "reply"})
         g.add_edge("act", "reply")
         g.add_edge("reply", END)
@@ -183,7 +187,7 @@ class Agent:
         triggers = [(r["intent"], r["text"]) for r in reqs if r["intent"] in HANDOFF_INTENTS]
         if state.get("angry"):
             triggers.append(("angry", state["message"][:200]))
-        handoffs = []
+        handoffs = list(state.get("handoffs", []))  # verify may already have added one
         for intent, text in triggers:
             handoffs.append(self._handoff(HANDOFF_REASON[intent], text, reqs))
         return {"handoffs": handoffs}
@@ -202,8 +206,7 @@ class Agent:
                 h = self._handoff(HANDOFF_REASON["verification"],
                                   "Identity verification failed twice.", state["requests"])
                 s.pending = []
-                return {"verification": "failed_twice", "sop_requests": [],
-                        "handoffs": state["handoffs"] + [h]}
+                return {"verification": "failed_twice", "sop_requests": [], "handoffs": [h]}
             s.pending = state["sop_requests"]
             return {"verification": "failed_once"}
         s.pending = state["sop_requests"]
