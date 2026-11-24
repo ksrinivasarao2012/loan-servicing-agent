@@ -54,7 +54,9 @@ class _RetryingLLM:
                 return self._call(prompt, as_json)
             except Exception as e:
                 code = self._status(e)
-                if code not in RETRYABLE_CODES or attempt == self.max_retries:
+                # Retry rate limits / server errors, and network errors (no HTTP code at all).
+                retryable = code in RETRYABLE_CODES or code is None
+                if not retryable or attempt == self.max_retries:
                     raise LLMError(f"{self.name} error {code}: {e}") from e
                 time.sleep(self.base_delay * (2 ** attempt))  # 2s, 4s, 8s, 16s, 32s
         raise LLMError("unreachable")

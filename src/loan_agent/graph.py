@@ -93,6 +93,7 @@ class Agent:
         self.session = session or Session()
         self.index = index or default_index()
         self.graph = self._build()
+        self._errors: list[str] = []  # LLM/API errors in the current turn
 
     # ------------------------------------------------------------------ graph
     def _build(self):
@@ -116,6 +117,7 @@ class Agent:
         of what the agent did (for the UI panel and the evals)."""
         log_start = len(self.session.system.log)
         calls_start = self.llm.calls
+        self._errors = []
         out = self.graph.invoke({"message": message})
         self.session.history += [("customer", message), ("agent", out["reply"])]
         return {
@@ -130,6 +132,7 @@ class Agent:
             "handoffs": out.get("handoffs", []),
             "results": out.get("results", []),
             "llm_calls": self.llm.calls - calls_start,
+            "llm_errors": list(self._errors),
         }
 
     # ------------------------------------------------------------------ nodes
@@ -143,6 +146,7 @@ class Agent:
                 intents="\n".join(f"- {k}: {v}" for k, v in prompts.INTENTS.items()),
                 history=history, pending=pending, message=msg))
         except Exception as e:  # bad JSON or API failure -> safest path is a human
+            self._errors.append(f"understand: {type(e).__name__}: {str(e)[:150]}")
             raw = {"requests": [{"intent": "out_of_scope", "text": msg}], "error": str(e)}
 
         requests: list[dict] = []
@@ -246,7 +250,8 @@ class Agent:
         try:
             text = self.llm.text(prompts.REPLY.format(
                 message=state["message"], sops=sops, facts=json.dumps(facts, indent=1)))
-        except Exception:
+        except Exception as e:
+            self._errors.append(f"reply: {type(e).__name__}: {str(e)[:150]}")
             text = ""
         if not text:  # LLM failed: fall back to a plain, fact-only reply
             text = fallback_reply(facts)

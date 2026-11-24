@@ -1,0 +1,1679 @@
+[
+ {
+  "case": "C01",
+  "turns": [
+   "My EMI got deducted twice this month. Loan HF1001, DOB 12-04-1988."
+  ],
+  "traces": [
+   {
+    "reply": "Hello! Thank you for reaching out to Velmora Home Loans. \n\nWe have checked your payment history and confirmed that a duplicate EMI debit occurred on 2026-11-05. We have raised a refund ticket with ID RF-HF1001-001 for the extra transaction amount of Rs. 28,500. \n\nPlease note that your refund will be processed within 5-7 working days. Let us know if you need any further assistance!",
+    "intents": [
+     "duplicate_emi_debit"
+    ],
+    "requests": [
+     {
+      "intent": "duplicate_emi_debit",
+      "text": "My EMI got deducted twice this month."
+     }
+    ],
+    "sops_used": [
+     "duplicate_emi_debit"
+    ],
+    "retrieval": [
+     {
+      "intent": "duplicate_emi_debit",
+      "query": "My EMI got deducted twice this month.",
+      "top_sop": "duplicate_emi_debit",
+      "scores": {
+       "duplicate_emi_debit": 2.11,
+       "foreclosure": 0.0,
+       "property_document_release": 0.0
+      }
+     }
+    ],
+    "verification": "ok",
+    "tool_calls": [
+     {
+      "tool": "verify_customer",
+      "inputs": {
+       "loan_id": "HF1001",
+       "date_of_birth": "1988-04-12"
+      },
+      "output": true
+     },
+     {
+      "tool": "get_payments",
+      "inputs": {
+       "loan_id": "HF1001"
+      },
+      "output": [
+       {
+        "txn_id": "TXN-1001-0805",
+        "date": "2026-08-05",
+        "amount": 28500,
+        "type": "EMI"
+       },
+       {
+        "txn_id": "TXN-1001-0905",
+        "date": "2026-09-05",
+        "amount": 28500,
+        "type": "EMI"
+       },
+       {
+        "txn_id": "TXN-1001-1005",
+        "date": "2026-10-05",
+        "amount": 28500,
+        "type": "EMI"
+       },
+       {
+        "txn_id": "TXN-1001-1105A",
+        "date": "2026-11-05",
+        "amount": 28500,
+        "type": "EMI"
+       },
+       {
+        "txn_id": "TXN-1001-1105B",
+        "date": "2026-11-05",
+        "amount": 28500,
+        "type": "EMI"
+       }
+      ]
+     },
+     {
+      "tool": "raise_refund_ticket",
+      "inputs": {
+       "loan_id": "HF1001",
+       "transaction_ids": [
+        "TXN-1001-1105B"
+       ],
+       "reason": "Duplicate EMI debit on 2026-11-05"
+      },
+      "output": "RF-HF1001-001"
+     }
+    ],
+    "handoffs": [],
+    "results": [
+     {
+      "intent": "duplicate_emi_debit",
+      "sop_id": "duplicate_emi_debit",
+      "request": "My EMI got deducted twice this month.",
+      "result": {
+       "duplicate_found": true,
+       "date": "2026-11-05",
+       "emi_amount": 28500,
+       "duplicate_txn_ids": [
+        "TXN-1001-1105A",
+        "TXN-1001-1105B"
+       ],
+       "refund_txn_ids": [
+        "TXN-1001-1105B"
+       ],
+       "refund_amount": 28500,
+       "ticket_id": "RF-HF1001-001",
+       "refund_timeline": "5-7 working days"
+      }
+     }
+    ],
+    "llm_calls": 2
+   }
+  ]
+ },
+ {
+  "case": "C02",
+  "turns": [
+   "Hi, I think I was charged twice for my home loan EMI.",
+   "HF1001, 1988-04-12"
+  ],
+  "traces": [
+   {
+    "reply": "I can help with that. To protect your account, please share your loan ID and date of birth first.",
+    "intents": [
+     "duplicate_emi_debit"
+    ],
+    "requests": [
+     {
+      "intent": "duplicate_emi_debit",
+      "text": "I think I was charged twice for my home loan EMI"
+     }
+    ],
+    "sops_used": [],
+    "retrieval": [],
+    "verification": "missing",
+    "tool_calls": [],
+    "handoffs": [],
+    "results": [],
+    "llm_calls": 1
+   },
+   {
+    "reply": "Hello! \n\nThank you for providing your details. We have confirmed that a duplicate EMI debit occurred on 2026-11-05 for the amount of Rs. 28,500. \n\nWe have raised a refund ticket with the ticket id RF-HF1001-001 for the extra transaction. The refunded amount of Rs. 28,500 will take 5-7 working days to process. \n\nPlease let us know if you need any further assistance.",
+    "intents": [],
+    "requests": [],
+    "sops_used": [
+     "duplicate_emi_debit"
+    ],
+    "retrieval": [
+     {
+      "intent": "duplicate_emi_debit",
+      "query": "I think I was charged twice for my home loan EMI",
+      "top_sop": "duplicate_emi_debit",
+      "scores": {
+       "duplicate_emi_debit": 1.65,
+       "foreclosure": 0.54,
+       "property_document_release": 0.05
+      }
+     }
+    ],
+    "verification": "ok",
+    "tool_calls": [
+     {
+      "tool": "verify_customer",
+      "inputs": {
+       "loan_id": "HF1001",
+       "date_of_birth": "1988-04-12"
+      },
+      "output": true
+     },
+     {
+      "tool": "get_payments",
+      "inputs": {
+       "loan_id": "HF1001"
+      },
+      "output": [
+       {
+        "txn_id": "TXN-1001-0805",
+        "date": "2026-08-05",
+        "amount": 28500,
+        "type": "EMI"
+       },
+       {
+        "txn_id": "TXN-1001-0905",
+        "date": "2026-09-05",
+        "amount": 28500,
+        "type": "EMI"
+       },
+       {
+        "txn_id": "TXN-1001-1005",
+        "date": "2026-10-05",
+        "amount": 28500,
+        "type": "EMI"
+       },
+       {
+        "txn_id": "TXN-1001-1105A",
+        "date": "2026-11-05",
+        "amount": 28500,
+        "type": "EMI"
+       },
+       {
+        "txn_id": "TXN-1001-1105B",
+        "date": "2026-11-05",
+        "amount": 28500,
+        "type": "EMI"
+       }
+      ]
+     },
+     {
+      "tool": "raise_refund_ticket",
+      "inputs": {
+       "loan_id": "HF1001",
+       "transaction_ids": [
+        "TXN-1001-1105B"
+       ],
+       "reason": "Duplicate EMI debit on 2026-11-05"
+      },
+      "output": "RF-HF1001-001"
+     }
+    ],
+    "handoffs": [],
+    "results": [
+     {
+      "intent": "duplicate_emi_debit",
+      "sop_id": "duplicate_emi_debit",
+      "request": "I think I was charged twice for my home loan EMI",
+      "result": {
+       "duplicate_found": true,
+       "date": "2026-11-05",
+       "emi_amount": 28500,
+       "duplicate_txn_ids": [
+        "TXN-1001-1105A",
+        "TXN-1001-1105B"
+       ],
+       "refund_txn_ids": [
+        "TXN-1001-1105B"
+       ],
+       "refund_amount": 28500,
+       "ticket_id": "RF-HF1001-001",
+       "refund_timeline": "5-7 working days"
+      }
+     }
+    ],
+    "llm_calls": 3
+   }
+  ]
+ },
+ {
+  "case": "C03",
+  "turns": [
+   "I was double charged for my EMI. HF1003, 22/01/1985"
+  ],
+  "traces": [
+   {
+    "reply": "Hello,\n\nThank you for contacting Velmora Home Loans. \n\nRegarding your report of a double charge for your EMI, no duplicate was found. We found one EMI debit on 2026-09-10 (Rs. 21,000), one EMI debit on 2026-10-10 (Rs. 21,000), and one EMI debit on 2026-11-10 (Rs. 21,000). \n\nSince no duplicate is found, we did not raise a ticket. Please share the transaction details or bank statement if you still see two debits.",
+    "intents": [
+     "duplicate_emi_debit"
+    ],
+    "requests": [
+     {
+      "intent": "duplicate_emi_debit",
+      "text": "I was double charged for my EMI."
+     }
+    ],
+    "sops_used": [
+     "duplicate_emi_debit"
+    ],
+    "retrieval": [
+     {
+      "intent": "duplicate_emi_debit",
+      "query": "I was double charged for my EMI.",
+      "top_sop": "duplicate_emi_debit",
+      "scores": {
+       "duplicate_emi_debit": 1.61,
+       "foreclosure": 0.03,
+       "property_document_release": 0.0
+      }
+     }
+    ],
+    "verification": "ok",
+    "tool_calls": [
+     {
+      "tool": "verify_customer",
+      "inputs": {
+       "loan_id": "HF1003",
+       "date_of_birth": "1985-01-22"
+      },
+      "output": true
+     },
+     {
+      "tool": "get_payments",
+      "inputs": {
+       "loan_id": "HF1003"
+      },
+      "output": [
+       {
+        "txn_id": "TXN-1003-0910",
+        "date": "2026-09-10",
+        "amount": 21000,
+        "type": "EMI"
+       },
+       {
+        "txn_id": "TXN-1003-1010",
+        "date": "2026-10-10",
+        "amount": 21000,
+        "type": "EMI"
+       },
+       {
+        "txn_id": "TXN-1003-1110",
+        "date": "2026-11-10",
+        "amount": 21000,
+        "type": "EMI"
+       }
+      ]
+     }
+    ],
+    "handoffs": [],
+    "results": [
+     {
+      "intent": "duplicate_emi_debit",
+      "sop_id": "duplicate_emi_debit",
+      "request": "I was double charged for my EMI.",
+      "result": {
+       "duplicate_found": false,
+       "recent_emi_debits": [
+        {
+         "txn_id": "TXN-1003-0910",
+         "date": "2026-09-10",
+         "amount": 21000,
+         "type": "EMI"
+        },
+        {
+         "txn_id": "TXN-1003-1010",
+         "date": "2026-10-10",
+         "amount": 21000,
+         "type": "EMI"
+        },
+        {
+         "txn_id": "TXN-1003-1110",
+         "date": "2026-11-10",
+         "amount": 21000,
+         "type": "EMI"
+        }
+       ]
+      }
+     }
+    ],
+    "llm_calls": 3
+   }
+  ]
+ },
+ {
+  "case": "C04",
+  "turns": [
+   "HF1003 1985-01-22 I want to close my loan early, how much do I need to pay?"
+  ],
+  "traces": [
+   {
+    "reply": "Hello! Your outstanding principal is Rs. 1,200,000. Because your loan is a fixed-rate loan, the foreclosure charge is 2.0%, which is Rs. 24,000. The total foreclosure amount is Rs. 1,224,000, and this quoted amount is valid for today only. \n\nFor your next steps, please pay the total by bank transfer to your loan account. Once paid, you will receive a closure letter, and you can then request property document release. Thank you for choosing Velmora Home Loans!",
+    "intents": [
+     "foreclosure"
+    ],
+    "requests": [
+     {
+      "intent": "foreclosure",
+      "text": "I want to close my loan early, how much do I need to pay?"
+     }
+    ],
+    "sops_used": [
+     "foreclosure"
+    ],
+    "retrieval": [
+     {
+      "intent": "foreclosure",
+      "query": "I want to close my loan early, how much do I need to pay?",
+      "top_sop": "foreclosure",
+      "scores": {
+       "foreclosure": 1.21,
+       "property_document_release": 0.08,
+       "duplicate_emi_debit": 0.04
+      }
+     }
+    ],
+    "verification": "ok",
+    "tool_calls": [
+     {
+      "tool": "verify_customer",
+      "inputs": {
+       "loan_id": "HF1003",
+       "date_of_birth": "1985-01-22"
+      },
+      "output": true
+     },
+     {
+      "tool": "get_foreclosure_amount",
+      "inputs": {
+       "loan_id": "HF1003"
+      },
+      "output": {
+       "outstanding_principal": 1200000,
+       "rate_type": "fixed",
+       "foreclosure_charge_percent": 2.0,
+       "foreclosure_charge": 24000,
+       "total_foreclosure_amount": 1224000
+      }
+     }
+    ],
+    "handoffs": [],
+    "results": [
+     {
+      "intent": "foreclosure",
+      "sop_id": "foreclosure",
+      "request": "I want to close my loan early, how much do I need to pay?",
+      "result": {
+       "outstanding_principal": 1200000,
+       "rate_type": "fixed",
+       "foreclosure_charge_percent": 2.0,
+       "foreclosure_charge": 24000,
+       "total_foreclosure_amount": 1224000
+      }
+     }
+    ],
+    "llm_calls": 4
+   }
+  ]
+ },
+ {
+  "case": "C05",
+  "turns": [
+   "What's the foreclosure amount for HF1005? DOB 03/12/1982"
+  ],
+  "traces": [
+   {
+    "reply": "Hello! Your outstanding principal is Rs. 3,100,000. Since your loan is a floating-rate loan, the foreclosure charge is 0% (Rs. 0). Your total foreclosure amount is Rs. 3,100,000, which is valid for today only. \n\nNext steps: please pay the total amount by bank transfer to your loan account. After payment, you will receive a closure letter, and you can then request property document release. Let us know if you need any further help!",
+    "intents": [
+     "foreclosure"
+    ],
+    "requests": [
+     {
+      "intent": "foreclosure",
+      "text": "What's the foreclosure amount for HF1005?"
+     }
+    ],
+    "sops_used": [
+     "foreclosure"
+    ],
+    "retrieval": [
+     {
+      "intent": "foreclosure",
+      "query": "What's the foreclosure amount for HF1005?",
+      "top_sop": "foreclosure",
+      "scores": {
+       "foreclosure": 0.99,
+       "property_document_release": 0.05,
+       "duplicate_emi_debit": 0.04
+      }
+     }
+    ],
+    "verification": "ok",
+    "tool_calls": [
+     {
+      "tool": "verify_customer",
+      "inputs": {
+       "loan_id": "HF1005",
+       "date_of_birth": "1982-12-03"
+      },
+      "output": true
+     },
+     {
+      "tool": "get_foreclosure_amount",
+      "inputs": {
+       "loan_id": "HF1005"
+      },
+      "output": {
+       "outstanding_principal": 3100000,
+       "rate_type": "floating",
+       "foreclosure_charge_percent": 0.0,
+       "foreclosure_charge": 0,
+       "total_foreclosure_amount": 3100000
+      }
+     }
+    ],
+    "handoffs": [],
+    "results": [
+     {
+      "intent": "foreclosure",
+      "sop_id": "foreclosure",
+      "request": "What's the foreclosure amount for HF1005?",
+      "result": {
+       "outstanding_principal": 3100000,
+       "rate_type": "floating",
+       "foreclosure_charge_percent": 0.0,
+       "foreclosure_charge": 0,
+       "total_foreclosure_amount": 3100000
+      }
+     }
+    ],
+    "llm_calls": 2
+   }
+  ]
+ },
+ {
+  "case": "C06",
+  "turns": [
+   "My loan is fully paid. Please release my property documents. HF1002, 30-09-1979"
+  ],
+  "traces": [
+   {
+    "reply": "Hello, \n\nYour loan is closed and your property documents are ready for collection at the Velmora Home Loans, Madhapur branch, Hyderabad, starting from 2026-11-20. \n\nTo collect them, please visit the branch in person with an original photo ID and the loan closure letter. If someone else is collecting on your behalf, they will need an authorisation letter signed by you. \n\nPlease let me know if you need any further assistance.",
+    "intents": [
+     "property_document_release"
+    ],
+    "requests": [
+     {
+      "intent": "property_document_release",
+      "text": "Please release my property documents."
+     }
+    ],
+    "sops_used": [
+     "property_document_release"
+    ],
+    "retrieval": [
+     {
+      "intent": "property_document_release",
+      "query": "Please release my property documents.",
+      "top_sop": "property_document_release",
+      "scores": {
+       "property_document_release": 0.15,
+       "foreclosure": 0.07,
+       "duplicate_emi_debit": 0.0
+      }
+     }
+    ],
+    "verification": "ok",
+    "tool_calls": [
+     {
+      "tool": "verify_customer",
+      "inputs": {
+       "loan_id": "HF1002",
+       "date_of_birth": "1979-09-30"
+      },
+      "output": true
+     },
+     {
+      "tool": "get_document_release_status",
+      "inputs": {
+       "loan_id": "HF1002"
+      },
+      "output": {
+       "loan_status": "closed",
+       "status": "ready_for_collection",
+       "branch": "Velmora Home Loans, Madhapur branch, Hyderabad",
+       "ready_from": "2026-11-20"
+      }
+     }
+    ],
+    "handoffs": [],
+    "results": [
+     {
+      "intent": "property_document_release",
+      "sop_id": "property_document_release",
+      "request": "Please release my property documents.",
+      "result": {
+       "loan_status": "closed",
+       "status": "ready_for_collection",
+       "branch": "Velmora Home Loans, Madhapur branch, Hyderabad",
+       "ready_from": "2026-11-20"
+      }
+     }
+    ],
+    "llm_calls": 3
+   }
+  ]
+ },
+ {
+  "case": "C07",
+  "turns": [
+   "HF1003, DOB 22-01-1985. Tell me my foreclosure amount and also when I can get my property papers."
+  ],
+  "traces": [
+   {
+    "reply": "Hello! Your outstanding principal is Rs. 1,200,000. Because your loan is a fixed-rate loan, the foreclosure charge is 2% of the amount being prepaid, which is Rs. 24,000. Your total foreclosure amount is Rs. 1,224,000, and this quoted amount is valid for today only. \n\nRegarding your property papers, original property documents can only be released after the loan is fully paid and closed. Your loan is currently active with an outstanding principal of Rs. 1,200,000. \n\nFor the next steps on foreclosure, you can pay the total by bank transfer to your loan account, then receive a closure letter, and then request property document release.",
+    "intents": [
+     "foreclosure",
+     "property_document_release"
+    ],
+    "requests": [
+     {
+      "intent": "foreclosure",
+      "text": "Tell me my foreclosure amount"
+     },
+     {
+      "intent": "property_document_release",
+      "text": "when I can get my property papers"
+     }
+    ],
+    "sops_used": [
+     "foreclosure",
+     "property_document_release"
+    ],
+    "retrieval": [
+     {
+      "intent": "foreclosure",
+      "query": "Tell me my foreclosure amount",
+      "top_sop": "foreclosure",
+      "scores": {
+       "foreclosure": 0.14,
+       "property_document_release": 0.08,
+       "duplicate_emi_debit": 0.06
+      }
+     },
+     {
+      "intent": "property_document_release",
+      "query": "when I can get my property papers",
+      "top_sop": "property_document_release",
+      "scores": {
+       "property_document_release": 0.62,
+       "foreclosure": 0.06,
+       "duplicate_emi_debit": 0.04
+      }
+     }
+    ],
+    "verification": "ok",
+    "tool_calls": [
+     {
+      "tool": "verify_customer",
+      "inputs": {
+       "loan_id": "HF1003",
+       "date_of_birth": "1985-01-22"
+      },
+      "output": true
+     },
+     {
+      "tool": "get_foreclosure_amount",
+      "inputs": {
+       "loan_id": "HF1003"
+      },
+      "output": {
+       "outstanding_principal": 1200000,
+       "rate_type": "fixed",
+       "foreclosure_charge_percent": 2.0,
+       "foreclosure_charge": 24000,
+       "total_foreclosure_amount": 1224000
+      }
+     },
+     {
+      "tool": "get_document_release_status",
+      "inputs": {
+       "loan_id": "HF1003"
+      },
+      "output": {
+       "loan_status": "active",
+       "status": "held",
+       "reason": "Loan is active.",
+       "outstanding_principal": 1200000
+      }
+     }
+    ],
+    "handoffs": [],
+    "results": [
+     {
+      "intent": "foreclosure",
+      "sop_id": "foreclosure",
+      "request": "Tell me my foreclosure amount",
+      "result": {
+       "outstanding_principal": 1200000,
+       "rate_type": "fixed",
+       "foreclosure_charge_percent": 2.0,
+       "foreclosure_charge": 24000,
+       "total_foreclosure_amount": 1224000
+      }
+     },
+     {
+      "intent": "property_document_release",
+      "sop_id": "property_document_release",
+      "request": "when I can get my property papers",
+      "result": {
+       "loan_status": "active",
+       "status": "held",
+       "reason": "Loan is active.",
+       "outstanding_principal": 1200000
+      }
+     }
+    ],
+    "llm_calls": 4
+   }
+  ]
+ },
+ {
+  "case": "C08",
+  "turns": [
+   "HF1001 1988-04-12: my EMI was debited twice on 5 Nov, and what would it cost to foreclose my loan?"
+  ],
+  "traces": [
+   {
+    "reply": "Hello! We confirmed your duplicate EMI debit on 2026-11-05 and raised refund ticket RF-HF1001-001 for Rs. 28,500, which takes 5-7 working days. \n\nRegarding your foreclosure request, your outstanding principal is Rs. 2,450,000. Since your loan is a floating-rate loan, the foreclosure charge is 0% (Rs. 0), making the total foreclosure amount Rs. 2,450,000. \n\nNext steps: pay the total by bank transfer to your loan account, then receive a closure letter, and you can then request property document release.",
+    "intents": [
+     "duplicate_emi_debit",
+     "foreclosure"
+    ],
+    "requests": [
+     {
+      "intent": "duplicate_emi_debit",
+      "text": "my EMI was debited twice on 5 Nov"
+     },
+     {
+      "intent": "foreclosure",
+      "text": "what would it cost to foreclose my loan"
+     }
+    ],
+    "sops_used": [
+     "duplicate_emi_debit",
+     "foreclosure"
+    ],
+    "retrieval": [
+     {
+      "intent": "duplicate_emi_debit",
+      "query": "my EMI was debited twice on 5 Nov",
+      "top_sop": "duplicate_emi_debit",
+      "scores": {
+       "duplicate_emi_debit": 2.68,
+       "foreclosure": 0.02,
+       "property_document_release": 0.0
+      }
+     },
+     {
+      "intent": "foreclosure",
+      "query": "what would it cost to foreclose my loan",
+      "top_sop": "foreclosure",
+      "scores": {
+       "foreclosure": 0.51,
+       "property_document_release": 0.05,
+       "duplicate_emi_debit": 0.04
+      }
+     }
+    ],
+    "verification": "ok",
+    "tool_calls": [
+     {
+      "tool": "verify_customer",
+      "inputs": {
+       "loan_id": "HF1001",
+       "date_of_birth": "1988-04-12"
+      },
+      "output": true
+     },
+     {
+      "tool": "get_payments",
+      "inputs": {
+       "loan_id": "HF1001"
+      },
+      "output": [
+       {
+        "txn_id": "TXN-1001-0805",
+        "date": "2026-08-05",
+        "amount": 28500,
+        "type": "EMI"
+       },
+       {
+        "txn_id": "TXN-1001-0905",
+        "date": "2026-09-05",
+        "amount": 28500,
+        "type": "EMI"
+       },
+       {
+        "txn_id": "TXN-1001-1005",
+        "date": "2026-10-05",
+        "amount": 28500,
+        "type": "EMI"
+       },
+       {
+        "txn_id": "TXN-1001-1105A",
+        "date": "2026-11-05",
+        "amount": 28500,
+        "type": "EMI"
+       },
+       {
+        "txn_id": "TXN-1001-1105B",
+        "date": "2026-11-05",
+        "amount": 28500,
+        "type": "EMI"
+       }
+      ]
+     },
+     {
+      "tool": "raise_refund_ticket",
+      "inputs": {
+       "loan_id": "HF1001",
+       "transaction_ids": [
+        "TXN-1001-1105B"
+       ],
+       "reason": "Duplicate EMI debit on 2026-11-05"
+      },
+      "output": "RF-HF1001-001"
+     },
+     {
+      "tool": "get_foreclosure_amount",
+      "inputs": {
+       "loan_id": "HF1001"
+      },
+      "output": {
+       "outstanding_principal": 2450000,
+       "rate_type": "floating",
+       "foreclosure_charge_percent": 0.0,
+       "foreclosure_charge": 0,
+       "total_foreclosure_amount": 2450000
+      }
+     }
+    ],
+    "handoffs": [],
+    "results": [
+     {
+      "intent": "duplicate_emi_debit",
+      "sop_id": "duplicate_emi_debit",
+      "request": "my EMI was debited twice on 5 Nov",
+      "result": {
+       "duplicate_found": true,
+       "date": "2026-11-05",
+       "emi_amount": 28500,
+       "duplicate_txn_ids": [
+        "TXN-1001-1105A",
+        "TXN-1001-1105B"
+       ],
+       "refund_txn_ids": [
+        "TXN-1001-1105B"
+       ],
+       "refund_amount": 28500,
+       "ticket_id": "RF-HF1001-001",
+       "refund_timeline": "5-7 working days"
+      }
+     },
+     {
+      "intent": "foreclosure",
+      "sop_id": "foreclosure",
+      "request": "what would it cost to foreclose my loan",
+      "result": {
+       "outstanding_principal": 2450000,
+       "rate_type": "floating",
+       "foreclosure_charge_percent": 0.0,
+       "foreclosure_charge": 0,
+       "total_foreclosure_amount": 2450000
+      }
+     }
+    ],
+    "llm_calls": 2
+   }
+  ]
+ },
+ {
+  "case": "C09",
+  "turns": [
+   "HF1002 1979-09-30 I want my sale deed back and what is my payoff amount?"
+  ],
+  "traces": [
+   {
+    "reply": "Hello! Regarding your sale deed, your loan is closed and your documents are ready for collection at the Velmora Home Loans, Madhapur branch, Hyderabad, from 2026-11-20. To collect them, please visit the branch in person with an original photo ID and the loan closure letter. If someone else collects them, they will need an authorisation letter signed by you. As for your payoff request, since your loan is already closed, there is nothing to foreclose.",
+    "intents": [
+     "property_document_release",
+     "foreclosure"
+    ],
+    "requests": [
+     {
+      "intent": "property_document_release",
+      "text": "I want my sale deed back"
+     },
+     {
+      "intent": "foreclosure",
+      "text": "what is my payoff amount?"
+     }
+    ],
+    "sops_used": [
+     "property_document_release",
+     "foreclosure"
+    ],
+    "retrieval": [
+     {
+      "intent": "property_document_release",
+      "query": "I want my sale deed back",
+      "top_sop": "property_document_release",
+      "scores": {
+       "property_document_release": 1.31,
+       "duplicate_emi_debit": 0.0,
+       "foreclosure": 0.0
+      }
+     },
+     {
+      "intent": "foreclosure",
+      "query": "what is my payoff amount?",
+      "top_sop": "foreclosure",
+      "scores": {
+       "foreclosure": 0.51,
+       "duplicate_emi_debit": 0.04,
+       "property_document_release": 0.03
+      }
+     }
+    ],
+    "verification": "ok",
+    "tool_calls": [
+     {
+      "tool": "verify_customer",
+      "inputs": {
+       "loan_id": "HF1002",
+       "date_of_birth": "1979-09-30"
+      },
+      "output": true
+     },
+     {
+      "tool": "get_document_release_status",
+      "inputs": {
+       "loan_id": "HF1002"
+      },
+      "output": {
+       "loan_status": "closed",
+       "status": "ready_for_collection",
+       "branch": "Velmora Home Loans, Madhapur branch, Hyderabad",
+       "ready_from": "2026-11-20"
+      }
+     },
+     {
+      "tool": "get_foreclosure_amount",
+      "inputs": {
+       "loan_id": "HF1002"
+      },
+      "output": {
+       "error": "loan_not_active",
+       "status": "closed"
+      }
+     }
+    ],
+    "handoffs": [],
+    "results": [
+     {
+      "intent": "property_document_release",
+      "sop_id": "property_document_release",
+      "request": "I want my sale deed back",
+      "result": {
+       "loan_status": "closed",
+       "status": "ready_for_collection",
+       "branch": "Velmora Home Loans, Madhapur branch, Hyderabad",
+       "ready_from": "2026-11-20"
+      }
+     },
+     {
+      "intent": "foreclosure",
+      "sop_id": "foreclosure",
+      "request": "what is my payoff amount?",
+      "result": {
+       "error": "loan_not_active",
+       "status": "closed"
+      }
+     }
+    ],
+    "llm_calls": 2
+   }
+  ]
+ },
+ {
+  "case": "C10",
+  "turns": [
+   "Two things: my EMI was taken twice, and I want the foreclosure figure.",
+   "HF1001 and 12/04/1988"
+  ],
+  "traces": [
+   {
+    "reply": "I can help with that. To protect your account, please share your loan ID and date of birth first.",
+    "intents": [
+     "duplicate_emi_debit",
+     "foreclosure"
+    ],
+    "requests": [
+     {
+      "intent": "duplicate_emi_debit",
+      "text": "my EMI was taken twice"
+     },
+     {
+      "intent": "foreclosure",
+      "text": "I want the foreclosure figure"
+     }
+    ],
+    "sops_used": [],
+    "retrieval": [],
+    "verification": "missing",
+    "tool_calls": [],
+    "handoffs": [],
+    "results": [],
+    "llm_calls": 2
+   },
+   {
+    "reply": "Hello! Thank you for providing your details. \n\nRegarding your duplicate EMI debit on 2026-11-05, we have confirmed a duplicate and raised refund ticket RF-HF1001-001 for Rs. 28,500. Your refund will take 5-7 working days. \n\nRegarding your foreclosure request, your outstanding principal is Rs. 2,450,000. Because your loan is a floating-rate loan, the foreclosure charge is 0%, making your total foreclosure amount Rs. 2,450,000. Next, you pay the total by bank transfer to your loan account, receive a closure letter, and then you can request property document release. \n\nPlease let us know if you need anything else!",
+    "intents": [],
+    "requests": [],
+    "sops_used": [
+     "duplicate_emi_debit",
+     "foreclosure"
+    ],
+    "retrieval": [
+     {
+      "intent": "duplicate_emi_debit",
+      "query": "my EMI was taken twice",
+      "top_sop": "duplicate_emi_debit",
+      "scores": {
+       "duplicate_emi_debit": 2.11,
+       "foreclosure": 0.0,
+       "property_document_release": 0.0
+      }
+     },
+     {
+      "intent": "foreclosure",
+      "query": "I want the foreclosure figure",
+      "top_sop": "foreclosure",
+      "scores": {
+       "foreclosure": 0.05,
+       "property_document_release": 0.03,
+       "duplicate_emi_debit": 0.0
+      }
+     }
+    ],
+    "verification": "ok",
+    "tool_calls": [
+     {
+      "tool": "verify_customer",
+      "inputs": {
+       "loan_id": "HF1001",
+       "date_of_birth": "1988-04-12"
+      },
+      "output": true
+     },
+     {
+      "tool": "get_payments",
+      "inputs": {
+       "loan_id": "HF1001"
+      },
+      "output": [
+       {
+        "txn_id": "TXN-1001-0805",
+        "date": "2026-08-05",
+        "amount": 28500,
+        "type": "EMI"
+       },
+       {
+        "txn_id": "TXN-1001-0905",
+        "date": "2026-09-05",
+        "amount": 28500,
+        "type": "EMI"
+       },
+       {
+        "txn_id": "TXN-1001-1005",
+        "date": "2026-10-05",
+        "amount": 28500,
+        "type": "EMI"
+       },
+       {
+        "txn_id": "TXN-1001-1105A",
+        "date": "2026-11-05",
+        "amount": 28500,
+        "type": "EMI"
+       },
+       {
+        "txn_id": "TXN-1001-1105B",
+        "date": "2026-11-05",
+        "amount": 28500,
+        "type": "EMI"
+       }
+      ]
+     },
+     {
+      "tool": "raise_refund_ticket",
+      "inputs": {
+       "loan_id": "HF1001",
+       "transaction_ids": [
+        "TXN-1001-1105B"
+       ],
+       "reason": "Duplicate EMI debit on 2026-11-05"
+      },
+      "output": "RF-HF1001-001"
+     },
+     {
+      "tool": "get_foreclosure_amount",
+      "inputs": {
+       "loan_id": "HF1001"
+      },
+      "output": {
+       "outstanding_principal": 2450000,
+       "rate_type": "floating",
+       "foreclosure_charge_percent": 0.0,
+       "foreclosure_charge": 0,
+       "total_foreclosure_amount": 2450000
+      }
+     }
+    ],
+    "handoffs": [],
+    "results": [
+     {
+      "intent": "duplicate_emi_debit",
+      "sop_id": "duplicate_emi_debit",
+      "request": "my EMI was taken twice",
+      "result": {
+       "duplicate_found": true,
+       "date": "2026-11-05",
+       "emi_amount": 28500,
+       "duplicate_txn_ids": [
+        "TXN-1001-1105A",
+        "TXN-1001-1105B"
+       ],
+       "refund_txn_ids": [
+        "TXN-1001-1105B"
+       ],
+       "refund_amount": 28500,
+       "ticket_id": "RF-HF1001-001",
+       "refund_timeline": "5-7 working days"
+      }
+     },
+     {
+      "intent": "foreclosure",
+      "sop_id": "foreclosure",
+      "request": "I want the foreclosure figure",
+      "result": {
+       "outstanding_principal": 2450000,
+       "rate_type": "floating",
+       "foreclosure_charge_percent": 0.0,
+       "foreclosure_charge": 0,
+       "total_foreclosure_amount": 2450000
+      }
+     }
+    ],
+    "llm_calls": 2
+   }
+  ]
+ },
+ {
+  "case": "C11",
+  "turns": [
+   "Someone took Rs 35000 from my account that I never authorised. HF1005, 1982-12-03"
+  ],
+  "traces": [
+   {
+    "reply": "Hello! A specialist will contact you regarding your report of a transaction you did not authorise, and your handoff ID is HO-HF1005-001. Please let us know if you need any further assistance.",
+    "intents": [
+     "fraud_report"
+    ],
+    "requests": [
+     {
+      "intent": "fraud_report",
+      "text": "Someone took Rs 35000 from my account that I never authorised."
+     }
+    ],
+    "sops_used": [],
+    "retrieval": [],
+    "verification": "not_needed",
+    "tool_calls": [
+     {
+      "tool": "create_handoff",
+      "inputs": {
+       "loan_id": "HF1005",
+       "reason": "fraud_or_unauthorised_transaction",
+       "summary": "Reason: fraud_or_unauthorised_transaction. Customer said: \"Someone took Rs 35000 from my account that I never authorised.\".\nLoan ID: HF1005 (identity not verified). Other requests in this message: none."
+      },
+      "output": "HO-HF1005-001"
+     }
+    ],
+    "handoffs": [
+     {
+      "reason": "fraud_or_unauthorised_transaction",
+      "handoff_id": "HO-HF1005-001",
+      "summary": "Reason: fraud_or_unauthorised_transaction. Customer said: \"Someone took Rs 35000 from my account that I never authorised.\".\nLoan ID: HF1005 (identity not verified). Other requests in this message: none."
+     }
+    ],
+    "results": [],
+    "llm_calls": 4
+   }
+  ]
+ },
+ {
+  "case": "C12",
+  "turns": [
+   "HF1005 1982-12-03. I see a fraudulent transaction I did not make, and separately please tell me my foreclosure amount."
+  ],
+  "traces": [
+   {
+    "reply": "Hello! Your outstanding principal is Rs. 3,100,000. Because your loan is a floating-rate loan, the foreclosure charge is 0% (Rs. 0), making your total foreclosure amount Rs. 3,100,000. This is valid for today only. Next steps: pay the total by bank transfer to your loan account, receive a closure letter, and then you can request property document release. Regarding your report of a transaction you did not authorise, a specialist will contact you with handoff id HO-HF1005-001. Thank you for contacting Velmora Home Loans!",
+    "intents": [
+     "fraud_report",
+     "foreclosure"
+    ],
+    "requests": [
+     {
+      "intent": "fraud_report",
+      "text": "I see a fraudulent transaction I did not make"
+     },
+     {
+      "intent": "foreclosure",
+      "text": "please tell me my foreclosure amount"
+     }
+    ],
+    "sops_used": [
+     "foreclosure"
+    ],
+    "retrieval": [
+     {
+      "intent": "foreclosure",
+      "query": "please tell me my foreclosure amount",
+      "top_sop": "foreclosure",
+      "scores": {
+       "foreclosure": 0.14,
+       "property_document_release": 0.08,
+       "duplicate_emi_debit": 0.06
+      }
+     }
+    ],
+    "verification": "ok",
+    "tool_calls": [
+     {
+      "tool": "create_handoff",
+      "inputs": {
+       "loan_id": "HF1005",
+       "reason": "fraud_or_unauthorised_transaction",
+       "summary": "Reason: fraud_or_unauthorised_transaction. Customer said: \"I see a fraudulent transaction I did not make\".\nLoan ID: HF1005 (identity not verified). Other requests in this message: foreclosure."
+      },
+      "output": "HO-HF1005-001"
+     },
+     {
+      "tool": "verify_customer",
+      "inputs": {
+       "loan_id": "HF1005",
+       "date_of_birth": "1982-12-03"
+      },
+      "output": true
+     },
+     {
+      "tool": "get_foreclosure_amount",
+      "inputs": {
+       "loan_id": "HF1005"
+      },
+      "output": {
+       "outstanding_principal": 3100000,
+       "rate_type": "floating",
+       "foreclosure_charge_percent": 0.0,
+       "foreclosure_charge": 0,
+       "total_foreclosure_amount": 3100000
+      }
+     }
+    ],
+    "handoffs": [
+     {
+      "reason": "fraud_or_unauthorised_transaction",
+      "handoff_id": "HO-HF1005-001",
+      "summary": "Reason: fraud_or_unauthorised_transaction. Customer said: \"I see a fraudulent transaction I did not make\".\nLoan ID: HF1005 (identity not verified). Other requests in this message: foreclosure."
+     }
+    ],
+    "results": [
+     {
+      "intent": "foreclosure",
+      "sop_id": "foreclosure",
+      "request": "please tell me my foreclosure amount",
+      "result": {
+       "outstanding_principal": 3100000,
+       "rate_type": "floating",
+       "foreclosure_charge_percent": 0.0,
+       "foreclosure_charge": 0,
+       "total_foreclosure_amount": 3100000
+      }
+     }
+    ],
+    "llm_calls": 2
+   }
+  ]
+ },
+ {
+  "case": "C13",
+  "turns": [
+   "This is ridiculous, third time I am writing. You people are useless idiots! HF1001 1988-04-12"
+  ],
+  "traces": [
+   {
+    "reply": "Hello. We apologize for the frustration you have experienced. A specialist will contact you regarding your complaint, and your handoff ID is HO-HF1001-001. Thank you for your patience as we work to resolve this for you.",
+    "intents": [
+     "angry"
+    ],
+    "requests": [],
+    "sops_used": [],
+    "retrieval": [],
+    "verification": "not_needed",
+    "tool_calls": [
+     {
+      "tool": "create_handoff",
+      "inputs": {
+       "loan_id": "HF1001",
+       "reason": "very_angry_or_abusive",
+       "summary": "Reason: very_angry_or_abusive. Customer said: \"This is ridiculous, third time I am writing. You people are useless idiots! HF1001 1988-04-12\".\nLoan ID: HF1001 (identity not verified). Other requests in this message: none."
+      },
+      "output": "HO-HF1001-001"
+     }
+    ],
+    "handoffs": [
+     {
+      "reason": "very_angry_or_abusive",
+      "handoff_id": "HO-HF1001-001",
+      "summary": "Reason: very_angry_or_abusive. Customer said: \"This is ridiculous, third time I am writing. You people are useless idiots! HF1001 1988-04-12\".\nLoan ID: HF1001 (identity not verified). Other requests in this message: none."
+     }
+    ],
+    "results": [],
+    "llm_calls": 2
+   }
+  ]
+ },
+ {
+  "case": "C14",
+  "turns": [
+   "Stop wasting my time with this bot, I want to talk to a real person NOW"
+  ],
+  "traces": [
+   {
+    "reply": "Hello! A specialist will contact you regarding your request to speak with a person, with handoff id HO-UNKNOWN-001. A specialist will also contact you regarding your complaint, with handoff id HO-UNKNOWN-002. Thank you for contacting Velmora Home Loans.",
+    "intents": [
+     "human_request",
+     "angry"
+    ],
+    "requests": [
+     {
+      "intent": "human_request",
+      "text": "Stop wasting my time with this bot, I want to talk to a real person NOW"
+     }
+    ],
+    "sops_used": [],
+    "retrieval": [],
+    "verification": "not_needed",
+    "tool_calls": [
+     {
+      "tool": "create_handoff",
+      "inputs": {
+       "loan_id": null,
+       "reason": "customer_asked_for_human",
+       "summary": "Reason: customer_asked_for_human. Customer said: \"Stop wasting my time with this bot, I want to talk to a real person NOW\".\nLoan ID: not given (identity not verified). Other requests in this message: none."
+      },
+      "output": "HO-UNKNOWN-001"
+     },
+     {
+      "tool": "create_handoff",
+      "inputs": {
+       "loan_id": null,
+       "reason": "very_angry_or_abusive",
+       "summary": "Reason: very_angry_or_abusive. Customer said: \"Stop wasting my time with this bot, I want to talk to a real person NOW\".\nLoan ID: not given (identity not verified). Other requests in this message: none."
+      },
+      "output": "HO-UNKNOWN-002"
+     }
+    ],
+    "handoffs": [
+     {
+      "reason": "customer_asked_for_human",
+      "handoff_id": "HO-UNKNOWN-001",
+      "summary": "Reason: customer_asked_for_human. Customer said: \"Stop wasting my time with this bot, I want to talk to a real person NOW\".\nLoan ID: not given (identity not verified). Other requests in this message: none."
+     },
+     {
+      "reason": "very_angry_or_abusive",
+      "handoff_id": "HO-UNKNOWN-002",
+      "summary": "Reason: very_angry_or_abusive. Customer said: \"Stop wasting my time with this bot, I want to talk to a real person NOW\".\nLoan ID: not given (identity not verified). Other requests in this message: none."
+     }
+    ],
+    "results": [],
+    "llm_calls": 2
+   }
+  ]
+ },
+ {
+  "case": "C15",
+  "turns": [
+   "Can I get a top-up loan of 5 lakh on my existing home loan?"
+  ],
+  "traces": [
+   {
+    "reply": "A specialist will contact you (reference HO-UNKNOWN-001).",
+    "intents": [
+     "out_of_scope"
+    ],
+    "requests": [
+     {
+      "intent": "out_of_scope",
+      "text": "Can I get a top-up loan of 5 lakh on my existing home loan?"
+     }
+    ],
+    "sops_used": [],
+    "retrieval": [],
+    "verification": "not_needed",
+    "tool_calls": [
+     {
+      "tool": "create_handoff",
+      "inputs": {
+       "loan_id": null,
+       "reason": "no_matching_sop",
+       "summary": "Reason: no_matching_sop. Customer said: \"Can I get a top-up loan of 5 lakh on my existing home loan?\".\nLoan ID: not given (identity not verified). Other requests in this message: none."
+      },
+      "output": "HO-UNKNOWN-001"
+     }
+    ],
+    "handoffs": [
+     {
+      "reason": "no_matching_sop",
+      "handoff_id": "HO-UNKNOWN-001",
+      "summary": "Reason: no_matching_sop. Customer said: \"Can I get a top-up loan of 5 lakh on my existing home loan?\".\nLoan ID: not given (identity not verified). Other requests in this message: none."
+     }
+    ],
+    "results": [],
+    "llm_calls": 2
+   }
+  ]
+ },
+ {
+  "case": "C16",
+  "turns": [
+   "HF1003 1985-01-22. Please update my mobile number, and also give me the foreclosure amount."
+  ],
+  "traces": [
+   {
+    "reply": "A specialist will contact you (reference HO-HF1003-001).",
+    "intents": [
+     "out_of_scope"
+    ],
+    "requests": [
+     {
+      "intent": "out_of_scope",
+      "text": "HF1003 1985-01-22. Please update my mobile number, and also give me the foreclosure amount."
+     }
+    ],
+    "sops_used": [],
+    "retrieval": [],
+    "verification": "not_needed",
+    "tool_calls": [
+     {
+      "tool": "create_handoff",
+      "inputs": {
+       "loan_id": "HF1003",
+       "reason": "no_matching_sop",
+       "summary": "Reason: no_matching_sop. Customer said: \"HF1003 1985-01-22. Please update my mobile number, and also give me the foreclosure amount.\".\nLoan ID: HF1003 (identity not verified). Other requests in this message: none."
+      },
+      "output": "HO-HF1003-001"
+     }
+    ],
+    "handoffs": [
+     {
+      "reason": "no_matching_sop",
+      "handoff_id": "HO-HF1003-001",
+      "summary": "Reason: no_matching_sop. Customer said: \"HF1003 1985-01-22. Please update my mobile number, and also give me the foreclosure amount.\".\nLoan ID: HF1003 (identity not verified). Other requests in this message: none."
+     }
+    ],
+    "results": [],
+    "llm_calls": 2
+   }
+  ]
+ },
+ {
+  "case": "C17",
+  "turns": [
+   "Foreclosure amount for HF1003 please, DOB 1990-01-01",
+   "Sorry, my DOB is 1991-02-02"
+  ],
+  "traces": [
+   {
+    "reply": "A specialist will contact you (reference HO-HF1003-001).",
+    "intents": [
+     "out_of_scope"
+    ],
+    "requests": [
+     {
+      "intent": "out_of_scope",
+      "text": "Foreclosure amount for HF1003 please, DOB 1990-01-01"
+     }
+    ],
+    "sops_used": [],
+    "retrieval": [],
+    "verification": "not_needed",
+    "tool_calls": [
+     {
+      "tool": "create_handoff",
+      "inputs": {
+       "loan_id": "HF1003",
+       "reason": "no_matching_sop",
+       "summary": "Reason: no_matching_sop. Customer said: \"Foreclosure amount for HF1003 please, DOB 1990-01-01\".\nLoan ID: HF1003 (identity not verified). Other requests in this message: none."
+      },
+      "output": "HO-HF1003-001"
+     }
+    ],
+    "handoffs": [
+     {
+      "reason": "no_matching_sop",
+      "handoff_id": "HO-HF1003-001",
+      "summary": "Reason: no_matching_sop. Customer said: \"Foreclosure amount for HF1003 please, DOB 1990-01-01\".\nLoan ID: HF1003 (identity not verified). Other requests in this message: none."
+     }
+    ],
+    "results": [],
+    "llm_calls": 2
+   },
+   {
+    "reply": "A specialist will contact you (reference HO-HF1003-001).",
+    "intents": [
+     "out_of_scope"
+    ],
+    "requests": [
+     {
+      "intent": "out_of_scope",
+      "text": "Sorry, my DOB is 1991-02-02"
+     }
+    ],
+    "sops_used": [],
+    "retrieval": [],
+    "verification": "not_needed",
+    "tool_calls": [],
+    "handoffs": [
+     {
+      "reason": "no_matching_sop",
+      "handoff_id": "HO-HF1003-001",
+      "reused": true
+     }
+    ],
+    "results": [],
+    "llm_calls": 2
+   }
+  ]
+ },
+ {
+  "case": "C18",
+  "turns": [
+   "Release my property documents. HF1002, DOB 1979-09-03",
+   "Sorry, typo. It is 1979-09-30"
+  ],
+  "traces": [
+   {
+    "reply": "A specialist will contact you (reference HO-HF1002-001).",
+    "intents": [
+     "out_of_scope"
+    ],
+    "requests": [
+     {
+      "intent": "out_of_scope",
+      "text": "Release my property documents. HF1002, DOB 1979-09-03"
+     }
+    ],
+    "sops_used": [],
+    "retrieval": [],
+    "verification": "not_needed",
+    "tool_calls": [
+     {
+      "tool": "create_handoff",
+      "inputs": {
+       "loan_id": "HF1002",
+       "reason": "no_matching_sop",
+       "summary": "Reason: no_matching_sop. Customer said: \"Release my property documents. HF1002, DOB 1979-09-03\".\nLoan ID: HF1002 (identity not verified). Other requests in this message: none."
+      },
+      "output": "HO-HF1002-001"
+     }
+    ],
+    "handoffs": [
+     {
+      "reason": "no_matching_sop",
+      "handoff_id": "HO-HF1002-001",
+      "summary": "Reason: no_matching_sop. Customer said: \"Release my property documents. HF1002, DOB 1979-09-03\".\nLoan ID: HF1002 (identity not verified). Other requests in this message: none."
+     }
+    ],
+    "results": [],
+    "llm_calls": 2
+   },
+   {
+    "reply": "A specialist will contact you (reference HO-HF1002-001).",
+    "intents": [
+     "out_of_scope"
+    ],
+    "requests": [
+     {
+      "intent": "out_of_scope",
+      "text": "Sorry, typo. It is 1979-09-30"
+     }
+    ],
+    "sops_used": [],
+    "retrieval": [],
+    "verification": "not_needed",
+    "tool_calls": [],
+    "handoffs": [
+     {
+      "reason": "no_matching_sop",
+      "handoff_id": "HO-HF1002-001",
+      "reused": true
+     }
+    ],
+    "results": [],
+    "llm_calls": 2
+   }
+  ]
+ },
+ {
+  "case": "C19",
+  "turns": [
+   "HF1004, 08/07/1990. I want my property documents back please."
+  ],
+  "traces": [
+   {
+    "reply": "A specialist will contact you (reference HO-HF1004-001).",
+    "intents": [
+     "out_of_scope"
+    ],
+    "requests": [
+     {
+      "intent": "out_of_scope",
+      "text": "HF1004, 08/07/1990. I want my property documents back please."
+     }
+    ],
+    "sops_used": [],
+    "retrieval": [],
+    "verification": "not_needed",
+    "tool_calls": [
+     {
+      "tool": "create_handoff",
+      "inputs": {
+       "loan_id": "HF1004",
+       "reason": "no_matching_sop",
+       "summary": "Reason: no_matching_sop. Customer said: \"HF1004, 08/07/1990. I want my property documents back please.\".\nLoan ID: HF1004 (identity not verified). Other requests in this message: none."
+      },
+      "output": "HO-HF1004-001"
+     }
+    ],
+    "handoffs": [
+     {
+      "reason": "no_matching_sop",
+      "handoff_id": "HO-HF1004-001",
+      "summary": "Reason: no_matching_sop. Customer said: \"HF1004, 08/07/1990. I want my property documents back please.\".\nLoan ID: HF1004 (identity not verified). Other requests in this message: none."
+     }
+    ],
+    "results": [],
+    "llm_calls": 2
+   }
+  ]
+ },
+ {
+  "case": "C20",
+  "turns": [
+   "Meena here, HF1004 1990-07-08. Release my title deed. If that is not possible, how much to close the loan now?"
+  ],
+  "traces": [
+   {
+    "reply": "A specialist will contact you (reference HO-HF1004-001).",
+    "intents": [
+     "out_of_scope"
+    ],
+    "requests": [
+     {
+      "intent": "out_of_scope",
+      "text": "Meena here, HF1004 1990-07-08. Release my title deed. If that is not possible, how much to close the loan now?"
+     }
+    ],
+    "sops_used": [],
+    "retrieval": [],
+    "verification": "not_needed",
+    "tool_calls": [
+     {
+      "tool": "create_handoff",
+      "inputs": {
+       "loan_id": "HF1004",
+       "reason": "no_matching_sop",
+       "summary": "Reason: no_matching_sop. Customer said: \"Meena here, HF1004 1990-07-08. Release my title deed. If that is not possible, how much to close the loan now?\".\nLoan ID: HF1004 (identity not verified). Other requests in this message: none."
+      },
+      "output": "HO-HF1004-001"
+     }
+    ],
+    "handoffs": [
+     {
+      "reason": "no_matching_sop",
+      "handoff_id": "HO-HF1004-001",
+      "summary": "Reason: no_matching_sop. Customer said: \"Meena here, HF1004 1990-07-08. Release my title deed. If that is not possible, how much to close the loan now?\".\nLoan ID: HF1004 (identity not verified). Other requests in this message: none."
+     }
+    ],
+    "results": [],
+    "llm_calls": 2
+   }
+  ]
+ }
+]

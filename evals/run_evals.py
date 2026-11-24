@@ -113,6 +113,9 @@ def score_case(case: dict, traces: list[dict]) -> dict:
 
     retr = [r for t in traces for r in t.get("retrieval", [])]
     notes = []
+    errors = [e for t in traces for e in t.get("llm_errors", [])]
+    if errors:
+        notes.append(f"LLM/API ERROR in {len(errors)} call(s), agent used its safe fallback: {errors[0][:80]}")
     if not intent_ok:
         notes.append(f"intents got {sorted(got_intents)}")
     if sops_got != set(exp["sops"]):
@@ -139,6 +142,7 @@ def score_case(case: dict, traces: list[dict]) -> dict:
         "retrieval_hits": sum(r["top_sop"] == r["intent"] for r in retr),
         "retrieval_total": len(retr),
         "llm_calls": sum(t["llm_calls"] for t in traces),
+        "llm_errors": len(errors),
         "notes": "; ".join(notes),
     }
 
@@ -154,7 +158,8 @@ def run(cases: list[dict], llm, sleep: float) -> list[dict]:
                 traces.append(agent.run_turn(msg))
             except Exception as e:  # keep failures visible instead of crashing the run
                 traces.append({"reply": f"[ERROR] {e}", "intents": [], "sops_used": [],
-                               "tool_calls": [], "handoffs": [], "llm_calls": 0, "retrieval": []})
+                               "tool_calls": [], "handoffs": [], "llm_calls": 0, "retrieval": [],
+                               "llm_errors": [f"run_turn: {e}"]})
             time.sleep(sleep)
         row = score_case(case, traces)
         rows.append(row)
@@ -189,6 +194,7 @@ def to_markdown(rows: list[dict], model: str, title: str = "Eval results", when:
         f"| No internal codes in reply | {pct(rows, 'clean')} |",
         f"| **Cases fully passed** | **{pct(rows, 'passed')}** |",
         f"| BM25 top-1 SOP = intent (info only) | {hits}/{total} |",
+        f"| Cases hit by LLM/API errors (info) | {sum(1 for r in rows if r.get('llm_errors'))} |",
         "",
         "| Case | Category | Intent | SOP/tools | Escalation | Grounded | Facts | Clean | Pass | Notes |",
         "|---|---|---|---|---|---|---|---|---|---|",

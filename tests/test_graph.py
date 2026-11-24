@@ -132,3 +132,12 @@ def test_reply_prompt_never_sees_internal_handoff_codes():
     assert t["handoffs"][0]["reason"] == "very_angry_or_abusive"  # kept in the log
     assert "very_angry_or_abusive" not in t["reply"]  # reply prompt only got plain words
     assert "your complaint" in t["reply"]
+
+
+def test_llm_errors_are_reported_in_trace():
+    def down(_):
+        raise ConnectionError("network down")
+    a = Agent(FakeLLM(down, down))
+    t = a.run_turn("HF1003 1985-01-22 foreclosure amount")
+    assert len(t["llm_errors"]) == 2  # understand + reply both failed
+    assert t["handoffs"][0]["reason"] == "no_matching_sop"  # safe fallback
