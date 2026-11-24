@@ -1,1 +1,1 @@
-"""HomeFirst Loans demo agent."""
+"""Velmora Home Loans demo agent."""

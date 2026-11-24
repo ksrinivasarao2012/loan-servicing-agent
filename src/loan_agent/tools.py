@@ -1,4 +1,4 @@
-"""Mock HomeFirst Loans back-end tools.
+"""Mock Velmora Home Loans back-end tools.
 
 Everything here is deterministic (no randomness): the same calls in the same
 order always give the same outputs, so tests and evals are repeatable.

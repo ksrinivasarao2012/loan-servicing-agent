@@ -1,5 +1,5 @@
 {
-  "_note": "FAKE demo data for HomeFirst Loans. Not real people. Amounts in INR.",
+  "_note": "FAKE demo data for Velmora Home Loans. Not real people. Amounts in INR.",
   "customers": [
     {
       "profile": "A - duplicate EMI debit",
@@ -40,7 +40,7 @@
       ],
       "documents": {
         "status": "ready_for_collection",
-        "branch": "HomeFirst Loans, Madhapur branch, Hyderabad",
+        "branch": "Velmora Home Loans, Madhapur branch, Hyderabad",
         "ready_from": "2026-11-20"
       }
     },
