@@ -15,6 +15,4 @@ wheels/
 
 # Tools
 .pytest_cache/
-/evals/results.md
-/evals/results.json
 /evals/results_partial.*
