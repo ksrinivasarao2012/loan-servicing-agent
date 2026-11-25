@@ -12,21 +12,19 @@ You do these steps yourself; your API key never goes into the repo.
    - App URL: optional, e.g. `velmora-loan-agent`
 5. Click **Advanced settings**:
    - **Python version:** pick **3.11** (the project needs 3.11+; the default is 3.12, which also works).
-   - **Secrets:** paste this, with your real key in place of the dots:
+   - **Secrets:** paste this, with your real key(s) in place of the dots. Each name may appear only once (TOML rule). You can store both keys; `LLM_PROVIDER` picks which one the app uses:
 
      ```toml
      LLM_PROVIDER = "gemini"
+
      GEMINI_API_KEY = "..."
      GEMINI_MODEL = "gemini-3.5-flash-lite"
-     ```
 
-     To use Groq instead:
-
-     ```toml
-     LLM_PROVIDER = "groq"
      GROQ_API_KEY = "..."
      GROQ_MODEL = "llama-3.3-70b-versatile"
      ```
+
+     To switch to Groq later, change the first line to `LLM_PROVIDER = "groq"` and save (the app restarts). Note: only Gemini has been evaluated in this project.
    - Click **Save**.
 6. Click **Deploy** and wait a few minutes. Build logs appear on the right.
 7. Open the app and try a message from the sidebar ("Example messages").
