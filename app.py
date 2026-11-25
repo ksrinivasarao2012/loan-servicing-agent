@@ -53,9 +53,9 @@ with st.sidebar:
               for c in load_customers().values()])
     st.subheader("Example messages")
     st.markdown(
-        "- My EMI was taken twice this month. HF1001, 1988-04-12\n"
-        "- HF1003 born 22/01/1985: what's my foreclosure amount, and can I get my property papers?\n"
-        "- HF1005 1982-12-03 there's a debit I never made, and I also want to know my foreclosure amount\n"
+        "- My EMI was taken twice this month. VL1001, 1988-04-12\n"
+        "- VL1003 born 22/01/1985: what's my foreclosure amount, and can I get my property papers?\n"
+        "- VL1005 1982-12-03 there's a debit I never made, and I also want to know my foreclosure amount\n"
         "- Can I get a car loan?"
     )
 

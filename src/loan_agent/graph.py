@@ -36,7 +36,7 @@ FRAUD_RE = re.compile(
 HUMAN_RE = re.compile(
     r"\b(human|real person|(talk|speak) to (a |an |some ?one|your )?(person|agent|manager|someone|executive|officer)|"
     r"representative)\b", re.I)
-LOAN_ID_RE = re.compile(r"\bHF\d{4}\b", re.I)
+LOAN_ID_RE = re.compile(r"\bVL\d{4}\b", re.I)
 DATE_RE = re.compile(r"\b(\d{4}[-/]\d{2}[-/]\d{2}|\d{2}[-/]\d{2}[-/]\d{4})\b")
 
 HANDOFF_REASON = {
@@ -256,9 +256,12 @@ class Agent:
                              "closure) amounts and property document release. How can I help?"}
 
         facts = {
-            "results": results,
+            # Handoffs first: a fraud report must be the first thing the customer reads.
             "handoffs": [{"about": " and ".join(HANDOFF_ABOUT[r] for r in h["reasons"]),
-                          "handoff_id": h["handoff_id"]} for h in handoffs],
+                          "handoff_id": h["handoff_id"],
+                          "urgent": "fraud_or_unauthorised_transaction" in h["reasons"]}
+                         for h in handoffs],
+            "results": for_customer(results),
             "ask_for_identity": ask,
             "identity_check": v,
         }
@@ -266,7 +269,7 @@ class Agent:
         sops = "\n\n".join(self.index.get(i).text for i in sop_ids) or "(none)"
         try:
             text = self.llm.text(prompts.REPLY.format(
-                message=state["message"], sops=sops, facts=json.dumps(facts, indent=1)))
+                message=state["message"], sops=sops, facts=json.dumps(facts, indent=1, ensure_ascii=False)))
         except Exception as e:
             self._errors.append(f"reply: {type(e).__name__}: {str(e)[:150]}")
             text = ""
@@ -290,6 +293,37 @@ class Agent:
         hid = s.system.create_handoff(s.loan_id, main, summary)
         s.handoffs_by_reason[main] = hid
         return {"reason": main, "reasons": reasons, "handoff_id": hid, "summary": summary}
+
+
+# ------------------------------------------------------------- formatting
+AMOUNT_KEYS = {"loan_amount", "outstanding_principal", "emi_amount", "amount", "refund_amount",
+               "foreclosure_charge", "total_foreclosure_amount"}
+
+
+def inr(n: int | float) -> str:
+    """Indian-style rupees: 3100000 -> '₹31,00,000' (groups of 2 after the last 3 digits)."""
+    n = int(round(n))
+    sign, digits = ("-" if n < 0 else ""), str(abs(n))
+    if len(digits) > 3:
+        head, tail = digits[:-3], digits[-3:]
+        groups = []
+        while len(head) > 2:
+            groups.insert(0, head[-2:])
+            head = head[:-2]
+        groups.insert(0, head)
+        digits = ",".join(groups) + "," + tail
+    return f"{sign}₹{digits}"
+
+
+def for_customer(value):
+    """Copy of tool output with money amounts pre-formatted, so the reply LLM
+    copies '₹31,00,000' instead of doing number formatting itself."""
+    if isinstance(value, dict):
+        return {k: (inr(v) if k in AMOUNT_KEYS and isinstance(v, (int, float)) and not isinstance(v, bool)
+                    else for_customer(v)) for k, v in value.items()}
+    if isinstance(value, list):
+        return [for_customer(v) for v in value]
+    return value
 
 
 # ---------------------------------------------------------------- SOP runners
@@ -330,7 +364,7 @@ def fallback_reply(facts: dict) -> str:
     """Used only if the reply LLM call fails. Plain and fact-only."""
     lines = []
     for r in facts["results"]:
-        lines.append(f"{r['intent']}: {json.dumps(r['result'])}")
+        lines.append(f"{r['intent']}: {json.dumps(r['result'], ensure_ascii=False)}")
     for h in facts["handoffs"]:
         lines.append(f"A specialist will contact you (reference {h['handoff_id']}).")
     if facts["ask_for_identity"]:

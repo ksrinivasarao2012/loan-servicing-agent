@@ -1,4 +1,4 @@
-# Eval results
+# Eval results - run 5 (before fraud-first, Indian format and VL loan IDs)
 
 - Agent: A (rules-first)  
 - Model: `gemini:gemini-3.5-flash-lite`  

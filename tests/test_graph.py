@@ -43,28 +43,28 @@ def test_asks_for_identity_before_any_data():
 def test_duplicate_debit_full_flow_across_two_turns():
     a = agent_with({"twice": understanding("duplicate_emi_debit")})
     a.run_turn("My EMI was debited twice")
-    t = a.run_turn("HF1001, 12/04/1988")  # second turn: only credentials
+    t = a.run_turn("VL1001, 12/04/1988")  # second turn: only credentials
     assert tools(t) == ["verify_customer", "get_payments", "raise_refund_ticket"]
     refund = t["tool_calls"][2]
     assert refund["inputs"]["transaction_ids"] == ["TXN-1001-1105B"]
-    assert refund["output"] == "RF-HF1001-001"
-    assert "RF-HF1001-001" in t["reply"] and "5-7 working days" in t["reply"]
+    assert refund["output"] == "RF-VL1001-001"
+    assert "RF-VL1001-001" in t["reply"] and "5-7 working days" in t["reply"]
     assert t["sops_used"] == ["duplicate_emi_debit"]
     assert t["retrieval"][0]["intent"] == "duplicate_emi_debit"
 
 
 def test_multi_intent_in_one_message():
     a = agent_with({"foreclosure": understanding("foreclosure", "property_document_release")})
-    t = a.run_turn("HF1003 dob 1985-01-22. What's my foreclosure amount and can I get my documents?")
+    t = a.run_turn("VL1003 dob 1985-01-22. What's my foreclosure amount and can I get my documents?")
     assert tools(t) == ["verify_customer", "get_foreclosure_amount", "get_document_release_status"]
     assert t["sops_used"] == ["foreclosure", "property_document_release"]
-    assert "1224000" in t["reply"]
+    assert "₹12,24,000" in t["reply"]
     assert t["llm_calls"] == 2
 
 
 def test_documents_refused_when_loan_not_closed():
     a = agent_with({"documents": understanding("property_document_release")})
-    t = a.run_turn("HF1004 08-07-1990 please release my property documents")
+    t = a.run_turn("VL1004 08-07-1990 please release my property documents")
     out = t["tool_calls"][-1]["output"]
     assert out["loan_status"] == "active" and out["status"] == "held"
     assert t["handoffs"] == []
@@ -72,7 +72,7 @@ def test_documents_refused_when_loan_not_closed():
 
 def test_fraud_handoff_but_safe_request_still_done():
     a = agent_with({"fraud": understanding("fraud_report", "foreclosure")})
-    t = a.run_turn("HF1005 1982-12-03. There is a fraud debit I never made. Also foreclosure amount?")
+    t = a.run_turn("VL1005 1982-12-03. There is a fraud debit I never made. Also foreclosure amount?")
     assert [h["reason"] for h in t["handoffs"]] == ["fraud_or_unauthorised_transaction"]
     assert "create_handoff" in tools(t) and "get_foreclosure_amount" in tools(t)
     summary = next(c for c in t["tool_calls"] if c["tool"] == "create_handoff")["inputs"]["summary"]
@@ -107,9 +107,9 @@ def test_out_of_scope_goes_to_human():
 
 def test_verification_fails_twice_then_handoff_and_no_data():
     a = agent_with({"foreclosure": understanding("foreclosure")})
-    t1 = a.run_turn("HF1003 1999-01-01 foreclosure amount please")
+    t1 = a.run_turn("VL1003 1999-01-01 foreclosure amount please")
     assert t1["verification"] == "failed_once" and t1["handoffs"] == []
-    t2 = a.run_turn("HF1003 1999-02-02")
+    t2 = a.run_turn("VL1003 1999-02-02")
     assert t2["verification"] == "failed_twice"
     assert t2["handoffs"][0]["reason"] == "verification_failed_twice"
     assert "get_foreclosure_amount" not in tools(t1) + tools(t2)
@@ -143,14 +143,14 @@ def test_llm_errors_are_reported_in_trace():
     def down(_):
         raise ConnectionError("network down")
     a = Agent(FakeLLM(down, down))
-    t = a.run_turn("HF1003 1985-01-22 foreclosure amount")
+    t = a.run_turn("VL1003 1985-01-22 foreclosure amount")
     assert len(t["llm_errors"]) == 2  # understand + reply both failed
     assert t["handoffs"][0]["reason"] == "no_matching_sop"  # safe fallback
 
 
 def test_handoff_summary_knows_identity_was_verified():
     a = agent_with({"mobile": understanding("out_of_scope", "foreclosure")})
-    t = a.run_turn("HF1003 1985-01-22 update my mobile number and give foreclosure amount")
+    t = a.run_turn("VL1003 1985-01-22 update my mobile number and give foreclosure amount")
     assert "identity verified" in t["handoffs"][0]["summary"]
     b = agent_with({"fraud": understanding("fraud_report")})
     t2 = b.run_turn("fraud on my account")  # no identity given: still handed off
@@ -159,10 +159,10 @@ def test_handoff_summary_knows_identity_was_verified():
 
 def test_verification_handoff_quotes_the_customer():
     a = agent_with({"foreclosure": understanding("foreclosure")})
-    a.run_turn("HF1003 1999-01-01 foreclosure amount please")
-    t = a.run_turn("HF1003 1999-02-02")
+    a.run_turn("VL1003 1999-01-01 foreclosure amount please")
+    t = a.run_turn("VL1003 1999-02-02")
     summary = t["handoffs"][0]["summary"]
-    assert 'Customer said: "HF1003 1999-02-02"' in summary
+    assert 'Customer said: "VL1003 1999-02-02"' in summary
     assert "Other requests: foreclosure" in summary
 
 
@@ -171,3 +171,26 @@ def test_fraud_outranks_other_reasons():
     t = a.run_turn("fraud on my account, idiots, and change my address")
     assert len(t["handoffs"]) == 1
     assert t["handoffs"][0]["reason"] == "fraud_or_unauthorised_transaction"
+
+
+def test_indian_rupee_format():
+    from loan_agent.graph import inr
+    assert inr(3100000) == "₹31,00,000"
+    assert inr(1224000) == "₹12,24,000"
+    assert inr(800000) == "₹8,00,000"
+    assert inr(28500) == "₹28,500"
+    assert inr(500) == "₹500"
+    assert inr(0) == "₹0"
+    assert inr(123456789) == "₹12,34,56,789"
+
+
+def test_reply_facts_put_fraud_first_and_use_indian_amounts():
+    a = agent_with({"fraud": understanding("fraud_report", "foreclosure")})
+    t = a.run_turn("VL1005 1982-12-03. A fraud debit I never made. Also foreclosure amount?")
+    facts = t["reply"]  # the fake reply echoes the facts JSON the LLM saw
+    assert facts.index('"handoffs"') < facts.index('"results"')
+    assert '"urgent": true' in facts
+    assert "₹31,00,000" in facts and "\\u20b9" not in facts
+    # the tool log keeps raw numbers
+    fc = next(c for c in t["tool_calls"] if c["tool"] == "get_foreclosure_amount")
+    assert fc["output"]["total_foreclosure_amount"] == 3100000

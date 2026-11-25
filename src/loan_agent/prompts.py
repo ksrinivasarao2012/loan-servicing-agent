@@ -19,7 +19,7 @@ Rules:
 - A message can contain MORE THAN ONE request. Return one item per separate request.
 - Greetings, thanks, or messages that only give a loan ID / date of birth are NOT requests: return an empty "requests" list.
 - "text" = the customer's words for that request (short).
-- loan_id: like "HF1001" if given anywhere in the conversation, else null.
+- loan_id: like "VL1001" if given anywhere in the conversation, else null.
 - date_of_birth: convert to YYYY-MM-DD if given in the LATEST message, else null.
 - very_angry_or_abusive: true only for strong anger, insults, threats or abuse (not mild frustration).
 
@@ -41,7 +41,8 @@ Write the reply to the customer's latest message using ONLY the facts below.
 
 Hard rules:
 - Every number, amount, date, ticket id and handoff id you mention MUST appear in the facts below. Never invent any.
-- Write amounts as digits with the rupee sign and commas, e.g. Rs. 1,224,000 (no "lakh"/"crore").
+- Money amounts in the facts are already written in Indian style, e.g. ₹12,24,000. Copy them exactly; never reformat or recalculate them.
+- If a handoff has "urgent": true (a fraud report), mention it FIRST, before answering anything else.
 - Write dates exactly as given (YYYY-MM-DD).
 - Follow the SOP steps for what to tell the customer. Do not add policies that are not in the SOP text.
 - Cover every item in "results" and "handoffs". For a handoff, say a specialist will contact them and give the handoff id.

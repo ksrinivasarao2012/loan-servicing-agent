@@ -10,7 +10,7 @@ All checks are deterministic (no LLM judge). They read the tool-call log and rep
 - escalation:  handed off exactly when expected
 - grounded:    every number / ticket id / handoff id in the replies appears in a tool
                output, the SOP text, or the customer's own messages (hallucination check)
-- facts:       key facts appear in the final reply
+- facts:       key facts appear in the final reply (and a fraud handoff comes first)
 - clean:       no internal codes (words_with_underscores, e.g. a handoff reason) in any reply
 A case passes only if all six pass.
 
@@ -106,7 +106,15 @@ def score_case(case: dict, traces: list[dict]) -> dict:
     final = norm(traces[-1]["reply"])
     facts_missing = [f for f in exp["reply_must_contain"] if norm(f) not in final]
     facts_bad = [f for f in exp.get("reply_must_not_contain", []) if norm(f) in final]
-    facts_ok = not facts_missing and not facts_bad
+    # A fraud report must be the first thing the customer reads (before other facts).
+    fraud_ids = [norm(h["handoff_id"]) for t in traces for h in t["handoffs"]
+                 if "fraud_or_unauthorised_transaction" in h.get("reasons", [h["reason"]])]
+    fraud_late = False
+    if fraud_ids and fraud_ids[0] in final:
+        pos = final.index(fraud_ids[0])
+        others = [norm(f) for f in exp["reply_must_contain"] if norm(f) != fraud_ids[0]]
+        fraud_late = any(o in final and final.index(o) < pos for o in others)
+    facts_ok = not facts_missing and not facts_bad and not fraud_late
 
     codes = sorted({c for t in traces for c in CODE_RE.findall(t["reply"])})
     clean_ok = not codes
@@ -132,6 +140,8 @@ def score_case(case: dict, traces: list[dict]) -> dict:
         notes.append(f"reply missing {facts_missing}")
     if facts_bad:
         notes.append(f"reply should not have {facts_bad}")
+    if fraud_late:
+        notes.append("fraud handoff not mentioned first")
     if codes:
         notes.append(f"internal codes in reply {codes}")
     return {

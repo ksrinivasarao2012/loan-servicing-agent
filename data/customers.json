@@ -4,7 +4,7 @@
     {
       "profile": "A - duplicate EMI debit",
       "name": "Ravi Kumar",
-      "loan_id": "HF1001",
+      "loan_id": "VL1001",
       "date_of_birth": "1988-04-12",
       "loan_amount": 3000000,
       "outstanding_principal": 2450000,
@@ -24,7 +24,7 @@
     {
       "profile": "B - loan closed, wants property documents",
       "name": "Priya Sharma",
-      "loan_id": "HF1002",
+      "loan_id": "VL1002",
       "date_of_birth": "1979-09-30",
       "loan_amount": 2500000,
       "outstanding_principal": 0,
@@ -47,7 +47,7 @@
     {
       "profile": "C - active loan, wants foreclosure amount",
       "name": "Arjun Reddy",
-      "loan_id": "HF1003",
+      "loan_id": "VL1003",
       "date_of_birth": "1985-01-22",
       "loan_amount": 2000000,
       "outstanding_principal": 1200000,
@@ -65,7 +65,7 @@
     {
       "profile": "D - active loan, NOT fully paid, asks for documents",
       "name": "Meena Iyer",
-      "loan_id": "HF1004",
+      "loan_id": "VL1004",
       "date_of_birth": "1990-07-08",
       "loan_amount": 1500000,
       "outstanding_principal": 800000,
@@ -83,7 +83,7 @@
     {
       "profile": "E - normal account (fraud / anger / out-of-scope tests)",
       "name": "Suresh Patel",
-      "loan_id": "HF1005",
+      "loan_id": "VL1005",
       "date_of_birth": "1982-12-03",
       "loan_amount": 4000000,
       "outstanding_principal": 3100000,
