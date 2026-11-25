@@ -11,7 +11,7 @@ You do these steps yourself; your API key never goes into the repo.
    - Main file path: `app.py`
    - App URL: optional, e.g. `velmora-loan-agent`
 5. Click **Advanced settings**:
-   - **Python version:** pick **3.11** (the project needs 3.11+; the default is 3.12, which also works).
+   - **Python version:** pick **3.11** (the version everything was tested on). Newer versions such as 3.14 are untested.
    - **Secrets:** paste this, with your real key(s) in place of the dots. Each name may appear only once (TOML rule). You can store both keys; `LLM_PROVIDER` picks which one the app uses:
 
      ```toml

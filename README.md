@@ -1,5 +1,7 @@
 # Loan Servicing Agent (demo)
 
+**Live demo:** https://loan-servicing-agent.streamlit.app/ (fake data; try the loan IDs and dates of birth listed in the sidebar)
+
 A text-only AI customer-service agent for **Velmora Home Loans**, a made-up home-loan company (fake data, not related to any real lender).
 It handles hard (L2/L3) requests the way a trained human agent would: it splits messages with **more than one request**, **verifies identity** before sharing any loan data, finds the **written SOP** for each request, calls **mock loan-system tools**, and **hands off to a human** (with a short summary) on fraud, anger, a request for a human, out-of-scope requests, or two failed identity checks.
 Every tool call is logged and shown in the UI, and a **20-case eval suite** scores the agent from those logs.
