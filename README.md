@@ -47,7 +47,7 @@ uv run python evals/run_evals.py # real eval run (uses your API quota)
 
 ## Example conversation
 
-A real exchange from the final eval run (case C12: fraud report + a safe request in one message):
+A real exchange from eval run 4 (`evals/results_run4.json`, case C12: fraud report + a safe request in one message):
 
 > **Customer:** HF1005 1982-12-03. I see a fraudulent transaction I did not make, and separately please tell me my foreclosure amount.
 >
@@ -69,12 +69,12 @@ Handoff summary sent to the human: *Reason: fraud_or_unauthorised_transaction. C
 
 ## Eval results
 
-Copied from [`evals/results.md`](evals/results.md) (full traces in `evals/results.json`). RESULTS ARE BEING RE-RUN after the latest fix; the table below is run 4 (`evals/results_run4.md`). Deterministic checks only, no LLM judge.
+Copied from [`evals/results.md`](evals/results.md) (full traces in `evals/results.json`). Deterministic checks only, no LLM judge.
 
 - Agent: A (rules-first)  
 - Model: `gemini:gemini-3.5-flash-lite`  
-- Run at: 2026-11-24 11:25 UTC  
-- Cases: 20, LLM calls: 48 (retries after rate limits included)
+- Run at: 2026-11-25 04:29 UTC  
+- Cases: 20, LLM calls: 49 (retries after rate limits included)
 
 | Metric | Score |
 |---|---|
@@ -82,9 +82,9 @@ Copied from [`evals/results.md`](evals/results.md) (full traces in `evals/result
 | SOP / tool correctness | 20/20 (100%) |
 | Escalation correctness | 20/20 (100%) |
 | No hallucinated numbers/ids | 20/20 (100%) |
-| Key facts in reply | 20/20 (100%) |
+| Key facts in reply | 19/20 (95%) |
 | No internal codes in reply | 20/20 (100%) |
-| **Cases fully passed** | **20/20 (100%)** |
+| **Cases fully passed** | **19/20 (95%)** |
 | BM25 top-1 SOP = intent (info only) | 19/20 |
 | Cases hit by LLM/API errors (info) | 0 |
 
@@ -92,7 +92,7 @@ Copied from [`evals/results.md`](evals/results.md) (full traces in `evals/result
 |---|---|---|---|---|---|---|---|---|---|
 | C01 | single-intent | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |  |
 | C02 | single-intent (identity given in 2nd turn) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |  |
-| C03 | single-intent (claimed duplicate not found) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |  |
+| C03 | single-intent (claimed duplicate not found) | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ❌ | reply missing ['21000'] |
 | C04 | single-intent | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |  |
 | C05 | single-intent (floating rate, no charge) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |  |
 | C06 | single-intent | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |  |
@@ -111,23 +111,25 @@ Copied from [`evals/results.md`](evals/results.md) (full traces in `evals/result
 | C19 | documents requested, loan not closed | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |  |
 | C20 | documents requested, loan not closed + foreclosure | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |  |
 
-**How to read this honestly:** a rules-first agent is *built* to score well on tool correctness, because plain code picks the tools. The 100% mostly shows that the LLM parts (intent detection and grounded replies) held up on these 20 cases with this model. It does not prove the agent handles every real customer. The cases were written by me alongside the agent, not by an independent tester.
+**How to read this honestly:** a rules-first agent is *built* to score well on tool correctness, because plain code picks the tools. The one failure (C03) is real: the reply listed the three EMI dates but left out the amount (Rs. 21,000), which the case requires. The previous run included it, so this is the model's wording varying between runs, not a code bug. The case was left unchanged.
+
+More generally, the high scores mostly show that the LLM parts (intent detection and grounded replies) held up on these 20 cases with this model. It does not prove the agent handles every real customer. The cases were written by me alongside the agent, not by an independent tester.
 
 ### Failures and what I changed
 
-Every run is kept in `evals/` (`results_run1*.md`, `results_run2.md`, `results_run3_partial.md`). No test case was changed to improve a score.
+Every run is kept in `evals/` (`results_run1*.md`, `results_run2.md`, `results_run3_partial.md`, `results_run4.md`). No test case was changed to improve a score.
 
 | Run | Result | What went wrong | What I changed |
 |---|---|---|---|
-| 1 (02:34 UTC) | 20/20 on the 5 original checks | Reading the replies by hand: C13 told an angry customer about "the **very_angry_or_abusive** matter" (an internal code leaked). C08 opened with a garbled "thank honourable customer". | The reply prompt now gets plain words for handoffs, never reason codes. Added a 6th check, *no internal codes in reply*. Re-scoring run 1's saved replies with it gives **19/20** (`results_run1_rescored.md`). |
-| 2 (02:49 UTC) | **15/20** | From C15 on, every LLM call failed with a network error. The agent fell back to its safe path (hand off to a human), so C16-C20 failed and C15 passed by luck. The client only retried rate-limit errors, and the report did not say "API error". | Network errors are now retried with backoff, and each case reports LLM/API errors. |
-| 3 (08:14 UTC, C15-C20 only) | 6/6, 0 API errors | Reading the replies: C16's handoff summary said "identity not verified" although she was verified in the same message (handoffs were created before the identity check). C17's reply repeated "did not match twice". | Identity is checked before handoffs are created (handoffs still never *depend* on it). Shorter handoff wording. |
-| **Final (11:25 UTC)** | **20/20**, 48 LLM calls, 0 API errors | Rate-limit retries were needed in 2 turns (C08, C16) and worked. | - |
+| 1 (2026-11-24 02:34 UTC) | 20/20 on the 5 original checks | Reading the replies by hand: C13 told an angry customer about "the **very_angry_or_abusive** matter" (an internal code leaked). C08 opened with a garbled "thank honourable customer". | The reply prompt now gets plain words for handoffs, never reason codes. Added a 6th check, *no internal codes in reply*. Re-scoring run 1's saved replies with it gives **19/20** (`results_run1_rescored.md`). |
+| 2 (2026-11-24 02:49 UTC) | **15/20** | From C15 on, every LLM call failed with a network error. The agent fell back to its safe path (hand off to a human), so C16-C20 failed and C15 passed by luck. The client only retried rate-limit errors, and the report did not say "API error". | Network errors are now retried with backoff, and each case reports LLM/API errors. |
+| 3 (2026-11-24 08:14 UTC, C15-C20 only) | 6/6, 0 API errors | Reading the replies: C16's handoff summary said "identity not verified" although she was verified in the same message (handoffs were created before the identity check). C17's reply repeated "did not match twice". | Identity is checked before handoffs are created (handoffs still never *depend* on it). Shorter handoff wording. |
+| 4 (2026-11-24 11:25 UTC) | 20/20, 48 LLM calls, 0 API errors | Reading the replies: C14 (angry + wants a human) got **two** handoffs and was told twice a specialist would call. C17's handoff summary put the agent's words ("Identity verification failed twice.") in quotes as if the customer said them. | One handoff per message: the most serious reason is the main one, others are listed as "(also: ...)". The summary quotes the customer's real message and lists what they were trying to do. |
+| **Final (2026-11-25 04:29 UTC)** | **19/20**, 49 LLM calls, 0 API errors | C03 reply left out the EMI amount (see above). Checked by hand: C14 now has one handoff, C17's summary quotes the customer, every verification and foreclosure amount matches the data. | - |
 
 **Still open (found by reading the final replies, not fixed):**
-- C14: an angry customer asking for a human got **two** handoffs (human request + anger) and was told twice that a specialist will call. It should be one handoff per conversation.
-- C17: the handoff summary records *Customer said: "Identity verification failed twice."*, which is the agent's words, not the customer's.
-- Small model slips such as "thank/you" (C01).
+- Reply wording varies between runs (C03 above). A stricter reply template or a second check could catch missing facts, at the cost of another LLM call or less natural replies.
+- Small style slips: replies sometimes repeat a fact for each request (C07 states the outstanding principal twice), and C14 says "share your complaint" a bit awkwardly.
 - BM25 ranked the wrong SOP first in C20 ("how much to close the loan now?" scored higher for documents than foreclosure). The LLM's intent decides the SOP, so the result was not affected.
 
 ## Design decisions
